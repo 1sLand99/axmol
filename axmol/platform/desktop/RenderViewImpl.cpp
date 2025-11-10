@@ -417,6 +417,8 @@ RenderViewImpl::RenderViewImpl(bool initglfw)
     , _monitor(nullptr)
     , _mouseX(0.0f)
     , _mouseY(0.0f)
+    , _previousMouseX(0.0f)
+    , _previousMouseY(0.0f)
 {
     _viewName = "axmol3";
     g_keyCodeMap.clear();
@@ -1180,18 +1182,22 @@ void RenderViewImpl::onGLFWMouseCallBack(GLFWwindow* /*window*/, int button, int
         }
     }
 
-    float cursorX = transformInputX(_mouseX);
-    float cursorY = transformInputY(_mouseY);
+    float cursorX     = transformInputX(_mouseX);
+    float cursorY     = transformInputY(_mouseY);
+    float prevCursorX = transformInputX(_previousMouseX);
+    float prevCursorY = transformInputY(_previousMouseY);
 
     if (GLFW_PRESS == action)
     {
         EventMouse event(EventMouse::MouseEventType::MOUSE_DOWN);
+        event.setMouseInfo(prevCursorX, prevCursorY, ax::EventMouse::MouseButton::BUTTON_UNSET);
         event.setMouseInfo(cursorX, cursorY, static_cast<ax::EventMouse::MouseButton>(button));
         Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
     }
     else if (GLFW_RELEASE == action)
     {
         EventMouse event(EventMouse::MouseEventType::MOUSE_UP);
+        event.setMouseInfo(prevCursorX, prevCursorY, ax::EventMouse::MouseButton::BUTTON_UNSET);
         event.setMouseInfo(cursorX, cursorY, static_cast<ax::EventMouse::MouseButton>(button));
         Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
     }
@@ -1214,12 +1220,17 @@ void RenderViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, doubl
         }
     }
 
-    float cursorX = transformInputX(_mouseX);
-    float cursorY = transformInputY(_mouseY);
+    float cursorX     = transformInputX(_mouseX);
+    float cursorY     = transformInputY(_mouseY);
+    float prevCursorX = transformInputX(_previousMouseX);
+    float prevCursorY = transformInputY(_previousMouseY);
+    _previousMouseX   = _mouseX;
+    _previousMouseY   = _mouseY;
 
     EventMouse event(EventMouse::MouseEventType::MOUSE_MOVE);
     // Set current button
     EventMouse::MouseButton mouseButton{EventMouse::MouseButton::BUTTON_UNSET};
+    event.setMouseInfo(prevCursorX, prevCursorY, mouseButton);
     event.setMouseInfo(cursorX, cursorY, checkMouseButton(window));
     Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
 }
