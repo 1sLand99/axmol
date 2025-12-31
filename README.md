@@ -20,6 +20,7 @@ Please [visit our Wiki](https://github.com/axmolengine/axmol/wiki) to know more 
 ![issues](https://img.shields.io/github/issues/axmolengine/axmol?style=plastic)
 ![forks](https://img.shields.io/github/forks/axmolengine/axmol?style=plastic)
 ![stars](https://img.shields.io/github/stars/axmolengine/axmol?style=plastic)
+![G-Star](https://atomgit.com/axmol/axmol/star/badge.svg)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/axmolengine/axmol?style=plastic)  
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/axmolengine/axmol/pulls)
