@@ -41,21 +41,9 @@
 
 namespace ax::rhi
 {
-
-DriverBase* DriverBase::getInstance()
+std::unique_ptr<DriverBase> D3D11DriverFactory::create()
 {
-    if (!_instance)
-    {
-        _instance = new d3d11::DriverImpl();
-        static_cast<d3d11::DriverImpl*>(_instance)->init();
-    }
-
-    return _instance;
-}
-
-void DriverBase::destroyInstance()
-{
-    AX_SAFE_DELETE(_instance);
+    return std::make_unique<d3d11::DriverImpl>();
 }
 }  // namespace ax::rhi
 
@@ -101,7 +89,7 @@ static uint32_t FindMaxMsaaSamples(ID3D11Device* device, DXGI_FORMAT format)
 
 DriverImpl::DriverImpl() {}
 
-void DriverImpl::init()
+bool DriverImpl::init()
 {
     initializeAdapter();
     initializeDevice();
@@ -139,6 +127,8 @@ void DriverImpl::init()
     _caps.maxTextureSize = EstimateMaxTexSize(_device->GetFeatureLevel());
 
     _caps.maxSamplesAllowed = static_cast<int32_t>(FindMaxMsaaSamples(_device, DXGI_FORMAT_R8G8B8A8_UNORM));
+
+    return true;
 }
 
 DriverImpl::~DriverImpl()

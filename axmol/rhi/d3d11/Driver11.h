@@ -23,9 +23,9 @@
  ****************************************************************************/
 #pragma once
 
-#include "axmol/rhi/DriverBase.h"
+#include "axmol/rhi/DriverContext.h"
 #include "axmol/rhi/DXUtils.h"
-
+#include "axmol/rhi/DriverFactory.h"
 #include <d3d11.h>
 #include <optional>
 
@@ -53,7 +53,8 @@ public:
     DriverImpl();
     ~DriverImpl();
 
-    void init();
+    bool init() override;
+    DriverType type() override { return DriverType::D3D11; }
 
     /// @name Setters & Getters
     /**

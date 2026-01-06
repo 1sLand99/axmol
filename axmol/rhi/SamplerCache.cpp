@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "axmol/rhi/SamplerCache.h"
-#include "axmol/rhi/DriverBase.h"
+#include "axmol/rhi/DriverContext.h"
 #include "axmol/tlx/singleton.hpp"
 
 namespace ax::rhi
@@ -38,7 +38,7 @@ void SamplerCache::destroyInstance()
 
 SamplerCache::SamplerCache()
 {
-    _driver = DriverBase::getInstance();
+    _driver = axdrv;
 
     createBuiltinSamplers();
 }

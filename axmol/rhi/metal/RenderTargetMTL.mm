@@ -46,7 +46,6 @@ void RenderTargetImpl::applyRenderPassAttachments(const RenderPassDesc& params, 
     auto clearFlags = params.flags.clear;
 
     const auto colorCount = _color.size();
-
     for (size_t i = 0; i < colorCount; i++)
     {
         auto attachment = getColorAttachment(static_cast<int>(i));
@@ -95,6 +94,8 @@ void RenderTargetImpl::applyRenderPassAttachments(const RenderPassDesc& params, 
 
     if (_dirtyFlags != TargetBufferFlags::NONE)
     {
+        _nativeColorFormats.clear();
+
         for (size_t i = 0; i < colorCount; i++)
         {
             auto pf = getColorAttachmentPixelFormat(static_cast<int>(i));
@@ -131,7 +132,7 @@ void RenderTargetImpl::rebuildSwapchainAttachments()
     depthDesc.pixelFormat  = PixelFormat::D24S8;
     depthDesc.textureUsage = TextureUsage::RENDER_TARGET;
 
-    auto mtlDevice = static_cast<DriverImpl*>(DriverBase::getInstance())->getMTLDevice();
+    auto mtlDevice = static_cast<DriverImpl*>(axdrv)->getMTLDevice();
     auto tex       = new TextureImpl(mtlDevice, depthDesc);
     // ensure native texture
     tex->updateData(nullptr, width, height, 0);

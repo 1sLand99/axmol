@@ -32,6 +32,7 @@
 #include "axmol/rhi/vulkan/DepthStencilStateVK.h"
 #include "axmol/rhi/vulkan/VertexLayoutVK.h"
 #include "axmol/rhi/vulkan/UtilsVK.h"
+#include "axmol/rhi/DriverFactory.h"
 #include "axmol/rhi/RHIUtils.h"
 #include "axmol/tlx/hash.hpp"
 #include "axmol/base/Logging.h"
@@ -42,20 +43,9 @@
 
 namespace ax::rhi
 {
-DriverBase* DriverBase::getInstance()
+std::unique_ptr<DriverBase> VulkanDriverFactory::create()
 {
-    if (!_instance)
-    {
-        _instance = new vk::DriverImpl();
-        static_cast<vk::DriverImpl*>(_instance)->init();
-    }
-
-    return _instance;
-}
-
-void DriverBase::destroyInstance()
-{
-    AX_SAFE_DELETE(_instance);
+    return std::make_unique<vk::DriverImpl>();
 }
 }  // namespace ax::rhi
 
@@ -227,16 +217,25 @@ DriverImpl::~DriverImpl()
         vkDestroyInstance(_factory, nullptr);
 }
 
-void DriverImpl::init()
+bool DriverImpl::init()
 {
     // Load basic Vulkan functions without instance/device
     auto gladVulkanVer = gladLoaderLoadVulkan(nullptr, nullptr, nullptr);
     AXLOGI("axmol: vulkan gladVulkanVer: {}.{}", GLAD_VERSION_MAJOR(gladVulkanVer), GLAD_VERSION_MINOR(gladVulkanVer));
 
-    VK_VERIFY(gladVulkanVer != 0, "Vulkan is not supported on this device!");
+    VK_VERIFY_EXPR(gladVulkanVer != 0, "Vulkan is not supported on this device!");
 
-    initializeFactory();
-    initializeDevice();
+    if (GLAD_VERSION_MAJOR(gladVulkanVer) < 1 || GLAD_VERSION_MINOR(gladVulkanVer) < 1)
+    {
+        AXLOGW("Axmol requires vulkan-1.1");
+        return false;
+    }
+
+    if (!initializeFactory())
+        return false;
+
+    if (!initializeDevice())
+        return false;
 
     // Load remaining Vulkan functions with instance/device
     gladLoaderLoadVulkan(_factory, _physical, _device);
@@ -248,9 +247,11 @@ void DriverImpl::init()
             AXLOGW("Vulkan validation layer not available!");
         }
     }
+
+    return true;
 }
 
-void DriverImpl::initializeFactory()
+bool DriverImpl::initializeFactory()
 {
     auto& contextAttrs = Application::getContextAttrs();
 
@@ -326,23 +327,25 @@ void DriverImpl::initializeFactory()
 
     // Instance layers/extensions are platform-dependent; keep minimal for core init
     VkResult vr = vkCreateInstance(&createInfo, nullptr, &_factory);
-    VK_VERIFY_RESULT(vr, "vkCreateInstance failed");
+    VK_VERIFY(vr, "vkCreateInstance failed");
+
+    return true;
 }
 
-void DriverImpl::initializeDevice()
+bool DriverImpl::initializeDevice()
 {
     auto& contextAttrs = Application::getContextAttrs();
 
     // Enumerate physical devices
     uint32_t count = 0;
     vkEnumeratePhysicalDevices(_factory, &count, nullptr);
-    VK_VERIFY(count > 0, "No Vulkan physical devices found");
+    VK_VERIFY_EXPR(count > 0, "No Vulkan physical devices found");
 
     tlx::pod_vector<VkPhysicalDevice> devices(count);
     vkEnumeratePhysicalDevices(_factory, &count, devices.data());
 
     auto [physical, graphicsQueueFamily] = resolveAdapter(devices, _factory, contextAttrs.powerPreference);
-    VK_VERIFY(physical != VK_NULL_HANDLE && graphicsQueueFamily != UINT32_MAX, "No available GPU");
+    VK_VERIFY_EXPR(physical != VK_NULL_HANDLE && graphicsQueueFamily != UINT32_MAX, "No available GPU");
     _physical            = physical;
     _graphicsQueueFamily = graphicsQueueFamily;
 
@@ -366,7 +369,7 @@ void DriverImpl::initializeDevice()
     tlx::pod_vector<const char*> deviceExtensions;
 
     // Always require swapchain
-    VK_VERIFY(hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME), "VK_KHR_swapchain extension is required");
+    VK_VERIFY_EXPR(hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME), "VK_KHR_swapchain extension is required");
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
     // Android device not support extended dynamic state
@@ -494,10 +497,10 @@ void DriverImpl::initializeDevice()
 
     // Create logical device
     VkResult vr = vkCreateDevice(_physical, &dinfo, nullptr, &_device);
-    VK_VERIFY_RESULT(vr, "vkCreateDevice failed");
+    VK_VERIFY(vr, "vkCreateDevice failed");
 
     vkGetDeviceQueue(_device, _graphicsQueueFamily, 0, &_graphicsQueue);
-    VK_VERIFY(_graphicsQueue != VK_NULL_HANDLE, "vkGetDeviceQueue graphics failed");
+    VK_VERIFY_EXPR(_graphicsQueue != VK_NULL_HANDLE, "vkGetDeviceQueue graphics failed");
 
     // Create transient command pool
     VkCommandPoolCreateInfo poolInfo{};
@@ -506,7 +509,9 @@ void DriverImpl::initializeDevice()
     poolInfo.flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     vr = vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool);
-    VK_VERIFY_RESULT(vr, "vkCreateCommandPool failed for transient pool");
+    VK_VERIFY(vr, "vkCreateCommandPool failed for transient pool");
+
+    return true;
 }
 
 bool DriverImpl::recreateSurface(const SurfaceCreateInfo& info)
@@ -536,7 +541,7 @@ bool DriverImpl::recreateSurface(const SurfaceCreateInfo& info)
         }
     }
 
-    VK_VERIFY(_presentQueueFamily != UINT32_MAX, "No present queue family found");
+    VK_REQUIRE_EXPR(_presentQueueFamily != UINT32_MAX, "No present queue family found");
 
     if (_presentQueueFamily == _graphicsQueueFamily)
     {
@@ -545,7 +550,7 @@ bool DriverImpl::recreateSurface(const SurfaceCreateInfo& info)
     else
     {
         vkGetDeviceQueue(_device, _presentQueueFamily, 0, &_presentQueue);
-        VK_VERIFY(_presentQueue != VK_NULL_HANDLE, "vkGetDeviceQueue present failed");
+        VK_REQUIRE_EXPR(_presentQueue != VK_NULL_HANDLE, "vkGetDeviceQueue present failed");
     }
 
     if (oldSurface)
@@ -675,7 +680,7 @@ SamplerHandle DriverImpl::createSampler(const SamplerDesc& desc)
 
     VkSampler sampler{};
     VkResult vr = vkCreateSampler(_device, &info, nullptr, &sampler);
-    VK_VERIFY_RESULT(vr, "vkCreateSampler failed");
+    VK_REQUIRE(vr, "vkCreateSampler failed");
     return SamplerHandle(sampler);
 }
 
@@ -769,7 +774,7 @@ uint32_t DriverImpl::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
             return i;
     }
-    VK_VERIFY(false, "failed to find suitable memory type!");
+    VK_ABORT("failed to find suitable memory type!");
     return 0;
 }
 
@@ -784,7 +789,7 @@ VkResult DriverImpl::allocateCommandBuffers(VkCommandBuffer* cmds, uint32_t coun
     allocInfo.commandBufferCount = count;
 
     VkResult res = vkAllocateCommandBuffers(_device, &allocInfo, cmds);
-    VK_VERIFY_RESULT(res, "vkAllocateCommandBuffers failed");
+    VK_REQUIRE(res, "vkAllocateCommandBuffers failed");
     return res;
 }
 
@@ -805,7 +810,7 @@ IsolateSubmission DriverImpl::allocateIsolateSubmission()
                                           .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
     auto res = vkCreateFence(_device, &fenceInfo, nullptr, &fence);
-    VK_VERIFY_RESULT(res, "vkCreateFence failed");
+    VK_REQUIRE(res, "vkCreateFence failed");
 
     return IsolateSubmission{cmd, fence};
 }
@@ -830,15 +835,15 @@ void DriverImpl::beginRecordingIsolateSubmission(const IsolateSubmission& submis
         vkResetFences(_device, 1, &submission.fence);
 
     auto res = vkBeginCommandBuffer(submission.cmd, &beginInfo);
-    VK_VERIFY_RESULT(res, "vkBeginCommandBuffer failed");
+    VK_REQUIRE(res, "vkBeginCommandBuffer failed");
 }
 
 void DriverImpl::commitIsolateSubmission(const IsolateSubmission& submission)
 {
-    VK_VERIFY(submission.cmd != VK_NULL_HANDLE, "endSingleTimeCommands called with null cmd");
+    VK_REQUIRE_EXPR(submission.cmd != VK_NULL_HANDLE, "endSingleTimeCommands called with null cmd");
 
     VkResult res = vkEndCommandBuffer(submission.cmd);
-    VK_VERIFY_RESULT(res, "vkEndCommandBuffer failed");
+    VK_REQUIRE(res, "vkEndCommandBuffer failed");
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -846,13 +851,13 @@ void DriverImpl::commitIsolateSubmission(const IsolateSubmission& submission)
     submitInfo.pCommandBuffers    = &submission.cmd;
 
     res = vkQueueSubmit(_graphicsQueue, 1, &submitInfo, submission.fence);
-    VK_VERIFY_RESULT(res, "vkQueueSubmit failed");
+    VK_REQUIRE(res, "vkQueueSubmit failed");
 
     // wait for this fence (only this submission)
     if (submission.fence)
     {
         res = vkWaitForFences(_device, 1, &submission.fence, VK_TRUE, UINT64_MAX);
-        VK_VERIFY_RESULT(res, "vkWaitForFences failed");
+        VK_REQUIRE(res, "vkWaitForFences failed");
     }
 }
 

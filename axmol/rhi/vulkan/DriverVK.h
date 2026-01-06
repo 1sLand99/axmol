@@ -23,7 +23,7 @@
  ****************************************************************************/
 #pragma once
 
-#include "axmol/rhi/DriverBase.h"
+#include "axmol/rhi/DriverContext.h"
 #include <glad/vulkan.h>
 #include <optional>
 #include <string>
@@ -98,7 +98,9 @@ public:
     DriverImpl();
     ~DriverImpl();
 
-    void init();
+    bool init() override;
+
+    DriverType type() override { return DriverType::Vulkan; }
 
     bool recreateSurface(const SurfaceCreateInfo& info);
     VkSurfaceKHR getSurface() const { return _surface; }
@@ -187,8 +189,8 @@ protected:
     void destroySampler(SamplerHandle& h) override;
 
 private:
-    void initializeFactory();
-    void initializeDevice();
+    bool initializeFactory();
+    bool initializeDevice();
 
     tlx::flat_set<uint32_t> _supportedExtensions;
 

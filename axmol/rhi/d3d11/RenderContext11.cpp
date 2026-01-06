@@ -29,6 +29,7 @@
 #include "axmol/rhi/d3d11/Program11.h"
 #include "axmol/rhi/d3d11/VertexLayout11.h"
 #include "axmol/rhi/d3d11/Texture11.h"
+#include "axmol/rhi/DriverContext.h"
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
 #include <dxgi1_5.h>
@@ -778,7 +779,7 @@ void RenderContextImpl::endFrame()
     {
         if (hr == DXGI_ERROR_DEVICE_REMOVED)
         {
-            auto device    = static_cast<DriverImpl*>(DriverBase::getInstance())->getDevice();
+            auto device    = static_cast<DriverImpl*>(axdrv)->getDevice();
             HRESULT reason = device->GetDeviceRemovedReason();
             AXLOGD("D3D11 Device remove reason: {}", reason);
         }
