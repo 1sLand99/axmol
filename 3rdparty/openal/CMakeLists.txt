@@ -770,6 +770,7 @@ set(COMMON_OBJS
 
 # Core library routines
 set(CORE_OBJS
+    core/allpass_iir.hpp
     core/ambdec.cpp
     core/ambdec.h
     core/ambidefs.cpp
@@ -800,6 +801,7 @@ set(CORE_OBJS
     core/effects/base.h
     core/effectslot.cpp
     core/effectslot.h
+    core/encoderbase.hpp
     core/except.cpp
     core/except.h
     core/filters/biquad.h
@@ -829,6 +831,8 @@ set(CORE_OBJS
     core/resampler_limits.h
     core/storage_formats.cpp
     core/storage_formats.h
+    core/tsmefilter.cpp
+    core/tsmefilter.hpp
     core/uhjfilter.cpp
     core/uhjfilter.h
     core/uiddefs.cpp
@@ -1243,7 +1247,7 @@ if(ALSOFT_BACKEND_COREAUDIO)
         set(BACKENDS  "${BACKENDS} CoreAudio,")
 
         set(EXTRA_LIBS -Wl,-framework,CoreAudio ${EXTRA_LIBS})
-        if(CMAKE_SYSTEM_NAME MATCHES "^(iOS|tvOS)$")
+        if(CMAKE_SYSTEM_NAME MATCHES "^(iOS|tvOS|visionOS)$")
             find_library(COREFOUNDATION_FRAMEWORK NAMES CoreFoundation)
             if(COREFOUNDATION_FRAMEWORK)
                 set(EXTRA_LIBS -Wl,-framework,CoreFoundation ${EXTRA_LIBS})
