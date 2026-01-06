@@ -637,8 +637,9 @@ bool RenderViewImpl::initWithRect(std::string_view viewName,
     if (fallbackGL)
     {
         glfwMakeContextCurrent(_mainWindow);
-        glfwSetWindowUserPointer(_mainWindow, gl::__state);
         DriverContext::activateCurrentDriver();
+
+        glfwSetWindowUserPointer(_mainWindow, gl::__state);
     }
 #endif
 
