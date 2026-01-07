@@ -85,10 +85,6 @@ void RenderTargetImpl::rebuildSwapchainAttachments(const tlx::pod_vector<VkImage
 
     _dirtyFlags = TargetBufferFlags::DEPTH_AND_STENCIL;
 
-    cleanupResources();
-
-    _driver->destroyStaleResources();
-
     _swapchainImageViews.resize(images.size());
 
     /// create new attachments

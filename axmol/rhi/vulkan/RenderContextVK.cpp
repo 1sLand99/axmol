@@ -172,8 +172,10 @@ RenderContextImpl::RenderContextImpl(DriverImpl* driver, SurfaceHandle surface)
 RenderContextImpl::~RenderContextImpl()
 {
     vkDeviceWaitIdle(_device);
+    vkQueueWaitIdle(_presentQueue);
 
     AX_SAFE_RELEASE_NULL(_screenRT);
+    _driver->destroyStaleResources();
     AX_SAFE_RELEASE_NULL(_renderPipeline);
 
     destroyUniformRingBuffers();
@@ -464,7 +466,21 @@ void RenderContextImpl::recreateSwapchain()
     // Destroy old swapchain and swapchain images if exists
     if (_swapchain != VK_NULL_HANDLE)
     {
+        vkQueueWaitIdle(_presentQueue);
+
+        // destroy semaphores
+        if (!_renderFinishedSemaphores.empty())
+            destroySemphores(_renderFinishedSemaphores, _device);
+        if (!_presentCompleteSemaphores.empty())
+            destroySemphores(_presentCompleteSemaphores, _device);
+
+        // destroy imageviews, pipelines and other resources
+        _screenRT->cleanupResources();
+        _driver->destroyStaleResources();
+
+        // destroy swapchain
         vkDestroySwapchainKHR(_device, _swapchain, nullptr);
+        _swapchain = VK_NULL_HANDLE;
     }
 
     // Create new swapchain
@@ -498,12 +514,6 @@ void RenderContextImpl::recreateSwapchain()
     vkGetSwapchainImagesKHR(_device, _swapchain, &swapImageCount, _swapchainImages.data());
 
     _screenRT->rebuildSwapchainAttachments(_swapchainImages, extent, pixelFormat, surfaceFormat.format);
-
-    // re-create render finished semaphores
-    if (!_renderFinishedSemaphores.empty())
-        destroySemphores(_renderFinishedSemaphores, _device);
-    if (!_presentCompleteSemaphores.empty())
-        destroySemphores(_presentCompleteSemaphores, _device);
 
     VkSemaphoreCreateInfo sci{};
     sci.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
