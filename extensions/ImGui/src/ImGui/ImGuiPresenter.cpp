@@ -237,11 +237,14 @@ public:
         _touchListener->onTouchBegan = [this](Touch* touch, Event*) -> bool { return ImGui::GetIO().WantCaptureMouse; };
         eventDispatcher->addEventListenerWithFixedPriority(_touchListener, highestPriority);
 
-        // add by halx99
-        auto stopAnyMouse = [=](EventMouse* event) -> bool { return ImGui::GetIO().WantCaptureMouse; };
+        // capture mouse events
+        auto captureMouse = [=](EventMouse* event) -> bool { return ImGui::GetIO().WantCaptureMouse; };
         _mouseListener    = utils::newInstance<EventListenerMouse>();
         _mouseListener->setSwallowMouse(true);
-        _mouseListener->onMouseDown = _mouseListener->onMouseUp = stopAnyMouse;
+        _mouseListener->onMouseDown   = captureMouse;
+        _mouseListener->onMouseUp     = captureMouse;
+        _mouseListener->onMouseMove   = captureMouse;
+        _mouseListener->onMouseScroll = captureMouse;
         eventDispatcher->addEventListenerWithFixedPriority(_mouseListener, highestPriority);
 #endif
         return true;
