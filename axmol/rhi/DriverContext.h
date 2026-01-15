@@ -83,6 +83,7 @@ public:
      *          delegate's constructor/initContextAttrs, before any rendering context or window
      *          is created. Late changes may not apply if the driver has already
      *          been initialized.
+     *          **This API does not affect the fallback OpenGL driver.**
      *
      * @param driverType The driver type to assign a priority to.
      * @param prio       The priority value (higher means more preferred).
