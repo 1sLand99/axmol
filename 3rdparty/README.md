@@ -182,7 +182,7 @@
 
 ## OpenAL Soft
 - [![Upstream](https://img.shields.io/github/v/release/kcat/openal-soft?label=Upstream)](https://github.com/kcat/openal-soft)
-- Version: 1.25.0-94259df
+- Version: 1.25.1
 - Modifications: 
   - Remove `-Werror=undef`
   - Linking `fmt::fmt` instead `alsoft::fmt`
@@ -197,7 +197,7 @@
 
 ## png
 - [![Upstream](https://img.shields.io/github/v/tag/glennrp/libpng?label=Upstream)](https://github.com/glennrp/libpng)
-- Version: 1.6.53
+- Version: 1.6.54
 - License: PNG Reference Library License version 2
 
 ## poly2tri
