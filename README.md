@@ -35,14 +35,14 @@ Please [visit our Wiki](https://github.com/axmolengine/axmol/wiki) to know more 
 ## 📢 Branches
 
 > **Important Notice**  
-> - **`dev` branch**: Serves as the **v3** development branch. It is under active development and may contain unstable or experimental features.  
-> - **`release/2.x` branch**: Serves as the **stable production branch**. It is recommended for production use to ensure stability and compatibility.  
+> - **`dev` branch**: Serves as the **v3** development branch. It is under active development and may contain unstable or experimental features. PRs for new features, enhancements, or bug fixes (unless critical for v2 LTS) should be submitted to this branch **as the primary target**.
+> - **`release/2.x` branch**: Has entered the **stable maintenance phase** (2.11.x will be the final v2 LTS release). This branch is reserved for critical bug fixes and security patches only to ensure production stability.
 >
-> Use the `dev` branch if you want to contribute to v3 development or test new features. For production deployment, please use the `release/2.x` branch.  
+> Use the `dev` branch if you want to contribute to v3 development, test new features, or submit non-critical bug fixes. For production deployment, continue to use the `release/2.x` branch for stability and compatibility.  
 >
 > ⚠️ **Do not submit PRs to the `release/2.x` branch that apply full-file `clang-format` or large-scale reformatting changes.**  
-> Such changes significantly increase merge conflicts and make code review unnecessarily difficult, consuming additional time.  
-> Any PRs violating this rule **will not be accepted**.
+> Such changes significantly increase merge conflicts and make code review unnecessarily difficult, consuming additional time. Additionally, non-critical feature/enhancement PRs targeting `release/2.x` will not be accepted given its LTS maintenance status.  
+> Any PRs violating these rules **will not be accepted**.
 
 ***
 
