@@ -3,7 +3,8 @@
 # PowerShell Param statement : every line must end in #\ except the last line must with <#\
 # And, you can't use backticks in this section        #\
 # refer https://gist.github.com/ryanmaclean/a1f3135f49c1ab3fa7ec958ac3f8babe #\
-param( [switch]$updateAdt                    #\
+param( [switch]$updateAdt,                    #\
+    [string]$gradleMirror #\
 )                                                <#\
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -438,13 +439,18 @@ if ($updateAdt) {
         $gradle_tag = "v$gradleVer"
     }
 
+    if (!$gradleMirror) { $gradleMirror = 'origin' }
+
+    $gradle_base_url = $mirror_conf.'gradle-mirrors'.$gradleMirror
+    $gradle_base_url = $gradle_base_url.Replace(':', "\:")
+
     $gradle_settings_file = Join-Path $aproj_source_gradle_wrapper 'gradle-wrapper.properties'
     $settings_lines = Get-Content $gradle_settings_file
     $settings_lines[0] = "#$current_time"
     for ($i = 1; $i -lt $settings_lines.Count; ++$i) {
         $line_text = $settings_lines[$i]
         if ($line_text -match '^distributionUrl\s*=.*') {
-            $settings_lines[$i] = [Regex]::Replace($line_text, 'gradle-.+-bin.zip', "gradle-$gradleVer-bin.zip")
+            $settings_lines[$i] = "distributionUrl=$gradle_base_url/gradle-$gradleVer-bin.zip"
             break
         }
     }

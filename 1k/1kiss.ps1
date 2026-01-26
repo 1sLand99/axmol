@@ -515,7 +515,7 @@ $1k.println("proj_dir=$((Get-Location).Path), install_prefix=$install_prefix")
 # 1kdist
 $sentry_file = Join-Path $PSScriptRoot '.gitee'
 $mirror = if ($1k.isfile($sentry_file)) { 'gitee' } else { 'github' }
-$mirror_conf_file = $1k.realpath("$PSScriptRoot/../manifest.json")
+$mirror_conf_file = $1k.realpath("$PSScriptRoot/manifest.json")
 $mirror_current = $null
 $devtools_url_base = $null
 $1kdist_ver = $null

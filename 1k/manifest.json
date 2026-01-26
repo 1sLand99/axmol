@@ -1,6 +1,6 @@
 {
   "versions": {
-    "1kdist": "v110",
+    "1kdist": "v111",
     "oboe": "1.10.0",
     "kcp": "v1.7-f4f3a89",
     "opus": "v1.5.2",
@@ -27,5 +27,9 @@
       "sample-assets": "simdsoft/axmol-sample-assets.git",
       "axslcc": "simdsoft/axslcc/releases/download"
     }
+  },
+  "gradle-mirrors":{
+    "origin": "https://services.gradle.org/distributions",
+    "tencent": "https://mirrors.cloud.tencent.com/gradle"
   }
 }

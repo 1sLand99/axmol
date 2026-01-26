@@ -171,6 +171,8 @@ tests/lua-tests/project/proj.tizen/res/
 # Ignore extensions/local.cmake
 extensions/local.cmake
 
+/**/*/gradle-daemon-jvm.properties
+
 # Ignore x-studio folder
 .xs
 

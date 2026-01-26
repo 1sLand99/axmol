@@ -19,7 +19,7 @@
 ## gradle
 
 - [![github](https://img.shields.io/github/v/release/gradle/gradle?label=Upstream)](https://github.com/gradle/gradle)
-- Version: 9.2.1
+- Version: 9.3.0
 - License: Apache-2.0
 - Platform: Android
 - Manged by: `1k/build.profiles`

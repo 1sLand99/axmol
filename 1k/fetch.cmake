@@ -17,7 +17,7 @@ function(_1kfetch_init)
   endif()
 
   if(NOT _1kfetch_manifest)
-    file(REAL_PATH "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../manifest.json" _1kfetch_manifest)
+    file(REAL_PATH "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/manifest.json" _1kfetch_manifest)
     set(_1kfetch_manifest "${_1kfetch_manifest}" CACHE STRING "" FORCE)
   endif()
 
