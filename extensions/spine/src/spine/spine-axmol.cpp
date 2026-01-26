@@ -123,7 +123,7 @@ AxmolTextureLoader::AxmolTextureLoader() : TextureLoader() {}
 AxmolTextureLoader::~AxmolTextureLoader() {}
 
 void AxmolTextureLoader::load(AtlasPage &page, const spine::String &path) {
-	Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(path.buffer());
+	Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(std::string_view(path.buffer(), path.length()));
 	AXASSERT(texture != nullptr, "Invalid image");
 	if (texture) {
 		texture->retain();
@@ -174,7 +174,7 @@ AxmolExtension::AxmolExtension() : DefaultSpineExtension() {}
 AxmolExtension::~AxmolExtension() {}
 
 char *AxmolExtension::_readFile(const spine::String &path, int *length) {
-	Data data = FileUtils::getInstance()->getDataFromFile(path.buffer());
+	Data data = FileUtils::getInstance()->getDataFromFile(std::string_view(path.buffer(), path.length()));
 	if (data.isNull()) return nullptr;
 
 		// avoid buffer overflow (int is shorter than ssize_t in certain platforms)
