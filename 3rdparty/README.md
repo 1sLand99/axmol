@@ -42,7 +42,7 @@
 
 ## curl
 - [![Upstream](https://img.shields.io/github/v/release/curl/curl?label=Upstream)](https://github.com/curl/curl)
-- Version: 8.17.0
+- Version: 8.18.0
 - License: Curl (MIT/X)
 
 ## doctest
@@ -120,8 +120,8 @@
   - License: MIT (http://www.lua.org/license.html)
   
 - sol2
-  - [![Upstream](https://img.shields.io/github/v/release/ThePhD/sol2?label=Upstream)](https://github.com/ThePhD/sol2)
-  - Version: 3.3.0 
+  - [![Upstream](https://img.shields.io/github/v/tag/ThePhD/sol2?label=Upstream)](https://github.com/ThePhD/sol2)
+  - Version: 3.5.0 with modified for lua-5.5 support
   - License: MIT
 
 - luajit
