@@ -1236,7 +1236,7 @@ function setup_7z() {
     if (!$7z_cmd_info) {
         if ($IsWin) {
             $7z_ver = '2501'
-            $7z_prog = Join-Path $install_prefix '7z$7z_ver-x64/7z.exe'
+            $7z_prog = Join-Path $install_prefix "7z$7z_ver-x64/7z.exe"
             if (!$1k.isfile($7z_prog)) {
                 fetch_pkg $(devtool_url '7zip' $7z_ver)
             }

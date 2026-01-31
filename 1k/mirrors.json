@@ -85,6 +85,13 @@
         "gitee": "https://gitee.com/simdsoft/1kiss/releases/download/devtools/"
       }
     },
+    "libclang": {
+      "artifacts": "llvm-${ver}.7z",
+      "mirrors": {
+        "origin": "https://github.com/simdsoft/1kiss/releases/download/devtools/",
+        "gitee": "https://gitee.com/simdsoft/1kiss/releases/download/devtools/"
+      }
+    },
     "axslcc": {
       "artifacts": {
         "windows": "axslcc-${ver}-win64.zip",
