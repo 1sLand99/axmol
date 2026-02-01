@@ -3,30 +3,35 @@
     "1kdist": {
       "mirrors": {
         "origin": "https://github.com/simdsoft/1kiss/releases/download/",
+        "atomgit": "https://atomgit.com/simdsoft/1kiss/releases/download/",
         "gitee": "https://gitee.com/simdsoft/1kiss/releases/download/"
       }
     },
     "oboe": {
       "mirrors": {
         "origin": "https://github.com/google/oboe.git",
+        "atomgit": "https://gitcode.com/gh_mirrors/ob/oboe.git",
         "gitee": "https://gitee.com/simdsoft/oboe.git"
       }
     },
     "kcp": {
       "mirrors": {
         "origin": "https://github.com/skywind3000/kcp.git",
+        "atomgit": "https://atomgit.com/simdsoft/kcp.git",
         "gitee": "https://gitee.com/simdsoft/kcp.git"
       }
     },
     "lz4": {
       "mirrors": {
         "origin": "https://github.com/lz4/lz4.git",
+        "atomgit": "https://atomgit.com/simdsoft/lz4.git",
         "gitee": "https://gitee.com/simdsoft/lz4.git"
       }
     },
     "sample-assets": {
       "mirrors": {
         "origin": "https://github.com/axmolengine/axmol-sample-assets.git",
+        "atomgit": "https://atomgit.com/simdsoft/axmol-sample-assets.git",
         "gitee": "https://gitee.com/simdsoft/axmol-sample-assets.git"
       }
     }
@@ -82,6 +87,7 @@
       "artifacts": "7z${ver}-x64.zip",
       "mirrors": {
         "origin": "https://github.com/simdsoft/1kiss/releases/download/devtools/",
+        "atomgit": "https://atomgit.com/simdsoft/1kiss/releases/download/devtools/",
         "gitee": "https://gitee.com/simdsoft/1kiss/releases/download/devtools/"
       }
     },
@@ -89,6 +95,7 @@
       "artifacts": "llvm-${ver}.7z",
       "mirrors": {
         "origin": "https://github.com/simdsoft/1kiss/releases/download/devtools/",
+        "atomgit": "https://atomgit.com/simdsoft/1kiss/releases/download/devtools/",
         "gitee": "https://gitee.com/simdsoft/1kiss/releases/download/devtools/"
       }
     },
@@ -101,6 +108,7 @@
       },
       "mirrors": {
         "origin": "https://github.com/simdsoft/axslcc/releases/download/v${ver}/",
+        "atomgit": "https://atomgit.com/simdsoft/axslcc/releases/download/v${ver}/",
         "gitee": "https://gitee.com/simdsoft/axslcc/releases/download/v${ver}/"
       }
     },
