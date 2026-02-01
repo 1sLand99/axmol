@@ -10,7 +10,7 @@
     "oboe": {
       "mirrors": {
         "origin": "https://github.com/google/oboe.git",
-        "atomgit": "https://gitcode.com/gh_mirrors/ob/oboe.git",
+        "atomgit": "https://atomgit.com/simdsoft/oboe.git",
         "gitee": "https://gitee.com/simdsoft/oboe.git"
       }
     },
