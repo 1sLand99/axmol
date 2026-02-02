@@ -20,8 +20,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // This file was generated with a script.
-// Generated 2026-01-27 10:15:57.034441 UTC
-// This header was generated with sol v3.5.0.1 (revision 9a20d3df)
+// Generated 2026-02-02 04:53:33.200584 UTC
+// This header was generated with sol v3.5.0.1 (revision c037c46a)
 // https://github.com/ThePhD/sol2
 
 #ifndef SOL_SINGLE_INCLUDE_SOL_HPP
@@ -28584,11 +28584,13 @@ namespace sol {
 
 // end of sol/thread.hpp
 
+inline lua_State* sol_lua_newstate(lua_Alloc f, void* ud, [[maybe_unused]] unsigned seed = 0) {
 #if LUA_VERSION_NUM >= 505
-#  define sol_lua_newstate(f, ud) lua_newstate(f, ud, 0)
+	return ::lua_newstate(f, ud, seed);
 #else
-#  define sol_lua_newstate(f, ud) lua_newstate(f, ud)
+	return ::lua_newstate(f, ud);
 #endif
+}
 
 namespace sol {
 
