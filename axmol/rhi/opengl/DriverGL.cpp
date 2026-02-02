@@ -277,7 +277,7 @@ SamplerHandle DriverImpl::createSampler(const SamplerDesc& desc)
             return GL_MIRRORED_REPEAT;
         case SamplerAddressMode::CLAMP:
             return GL_CLAMP_TO_EDGE;
-#if defined(GL_CLAMP_TO_BORDER_EXT)
+#if defined(GL_CLAMP_TO_BORDER_EXT) && !defined(__EMSCRIPTEN__)
         case SamplerAddressMode::BORDER:
             return GL_CLAMP_TO_BORDER_EXT;
 #endif
@@ -289,7 +289,7 @@ SamplerHandle DriverImpl::createSampler(const SamplerDesc& desc)
     glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, toGLWrap(desc.tAddressMode));
     glSamplerParameteri(sampler, GL_TEXTURE_WRAP_R, toGLWrap(desc.wAddressMode));
 
-#if defined(GL_TEXTURE_BORDER_COLOR_EXT)
+#if defined(GL_TEXTURE_BORDER_COLOR_EXT) && !defined(__EMSCRIPTEN__)
     // --- Border color ---
     if (desc.sAddressMode == SamplerAddressMode::BORDER || desc.tAddressMode == SamplerAddressMode::BORDER ||
         desc.wAddressMode == SamplerAddressMode::BORDER)
