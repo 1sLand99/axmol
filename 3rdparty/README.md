@@ -126,7 +126,7 @@
 
 - luajit
   - Upstream: https://github.com/LuaJIT/LuaJIT
-  - Version: 2.1-7152e15
+  - Version: 2.1-1c3b5a4
   - License: MIT
 
 - tolua
@@ -232,7 +232,7 @@
 
 ## simdjson
 - [![Upstream](https://img.shields.io/github/v/tag/simdjson/simdjson?label=Upstream)](https://github.com/simdjson/simdjson)
-- Version: 4.3.0
+- Version: 4.3.1
 - License: Apache-2.0
 
 ## stb (stb_image)
@@ -267,6 +267,6 @@
 
 ## zlib
 - [![Upstream](https://img.shields.io/github/v/tag/madler/zlib?label=Upstream)](https://github.com/madler/zlib)
-- Version: 1.3.1
+- Version: 1.3.2
 - License: zlib
 
