@@ -205,7 +205,7 @@ struct ConvolutionState final : public EffectState {
     FmtChannels mChannels{};
     AmbiLayout mAmbiLayout{};
     AmbiScaling mAmbiScaling{};
-    u32 mAmbiOrder{};
+    unsigned mAmbiOrder{};
 
     size_t mFifoPos{0};
     alignas(16) std::array<float,ConvolveUpdateSamples*2> mInput{};
@@ -270,7 +270,7 @@ void ConvolutionState::deviceUpdate(const DeviceBase *device, const BufferStorag
     using UhjDecoderType = UhjDecoder<512>;
     static constexpr auto DecoderPadding = UhjDecoderType::sInputPadding;
 
-    static constexpr auto MaxConvolveAmbiOrder = 1_u32;
+    static constexpr auto MaxConvolveAmbiOrder = 1u;
 
     if(!mFft)
         mFft = PFFFTSetup{ConvolveUpdateSize, PFFFT_REAL};
@@ -309,8 +309,8 @@ void ConvolutionState::deviceUpdate(const DeviceBase *device, const BufferStorag
     auto resampler = PPhaseResampler{};
     if(device->mSampleRate != buffer->mSampleRate)
         resampler.init(buffer->mSampleRate, device->mSampleRate);
-    const auto resampledCount = static_cast<u32>(
-        (u64{buffer->mSampleLen}*device->mSampleRate+(buffer->mSampleRate-1)) /
+    const auto resampledCount = static_cast<unsigned>(
+        (u64::value_t{buffer->mSampleLen}*device->mSampleRate+(buffer->mSampleRate-1)) /
         buffer->mSampleRate);
 
     const auto splitter = BandSplitter{device->mXOverFreq/static_cast<float>(device->mSampleRate)};
@@ -532,8 +532,8 @@ void ConvolutionState::update(const ContextBase *context, const EffectSlotBase *
         std::array<float,MaxAmbiChannels> coeffs{};
         for(size_t c{0u};c < mChans.size();++c)
         {
-            const size_t acn{index_map[c]};
-            const float scale{scales[acn]};
+            auto const acn = usize{index_map[c].c_val};
+            auto const scale = scales[acn];
 
             std::ranges::transform(mixmatrix[acn], coeffs.begin(), [scale](const float in) -> float
             { return in * scale; });

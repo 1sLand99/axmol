@@ -48,7 +48,7 @@ template<typename T, T ...Vals>
 constexpr auto make_array_sequence(std::integer_sequence<T, Vals...>)
 { return std::array<T,sizeof...(Vals)>{Vals...}; }
 
-template<typename T, size_t N>
+template<typename T, T N>
 constexpr auto make_array_sequence()
 { return make_array_sequence(std::make_integer_sequence<T,N>{}); }
 
@@ -256,7 +256,7 @@ try {
         context->throw_error(AL_INVALID_ENUM, "Invalid debug enable {}", enable);
 
     static constexpr auto ElemCount = DebugSourceCount + DebugTypeCount + DebugSeverityCount;
-    static constexpr auto Values = make_array_sequence<u8,ElemCount>();
+    static constexpr auto Values = make_array_sequence<u8::value_t, ElemCount>();
 
     auto srcIdxs = std::span{Values}.subspan(DebugSourceBase,DebugSourceCount);
     if(source != AL_DONT_CARE_EXT)
@@ -291,12 +291,12 @@ try {
     auto &debug = context->mDebugGroups.back();
     if(count > 0)
     {
-        const auto filterbase = (1u<<srcIdxs[0]) | (1u<<typeIdxs[0]);
+        const auto filterbase = (1_u64<<srcIdxs[0]) | (1_u64<<typeIdxs[0]);
 
         std::ranges::for_each(std::views::counted(ids, count),
-            [enable,filterbase,&debug](const u32 id)
+            [enable,filterbase,&debug](ALuint const id)
         {
-            const auto filter = u64{filterbase} | (u64{id} << 32);
+            const auto filter = filterbase | (u64{id} << 32);
 
             const auto iter = std::ranges::lower_bound(debug.mIdFilters, filter);
             if(!enable && (iter == debug.mIdFilters.cend() || *iter != filter))
@@ -310,13 +310,13 @@ try {
         /* C++23 has std::views::cartesian(srcIdxs, typeIdxs, svrIdxs) for a
          * range that gives all value combinations of the given ranges.
          */
-        std::ranges::for_each(srcIdxs, [enable,typeIdxs,svrIdxs,&debug](const u32 srcidx)
+        std::ranges::for_each(srcIdxs, [enable,typeIdxs,svrIdxs,&debug](u8::value_t const srcidx)
         {
             const auto srcfilt = 1_u32<<srcidx;
-            std::ranges::for_each(typeIdxs, [enable,srcfilt,svrIdxs,&debug](const u32 typeidx)
+            std::ranges::for_each(typeIdxs, [enable,srcfilt,svrIdxs,&debug](u8::value_t const typeidx)
             {
                 const auto srctype = srcfilt | (1_u32<<typeidx);
-                std::ranges::for_each(svrIdxs, [enable,srctype,&debug](const u32 svridx)
+                std::ranges::for_each(svrIdxs, [enable,srctype,&debug](u8::value_t const svridx)
                 {
                     const auto filter = srctype | (1_u32<<svridx);
                     auto iter = std::ranges::lower_bound(debug.mFilters, filter);
