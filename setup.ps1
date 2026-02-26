@@ -310,12 +310,12 @@ else {
         # preferred ~/.profile to ensure GUI apps and terminal works
         updateUnixProfile ~/.profile
 
-        # ~/.profile not read by bash(1), if ~/.bash_profile or ~/.bash_login
-        if (Test-Path ~/.bash_profile -PathType Leaf) {
-            if ("$env:SHELL" -like '*/zsh') {
-                updateUnixProfile ~/.zshrc
-            }
-            else {
+        if ("$env:SHELL" -like '*/zsh') {
+            updateUnixProfile ~/.zshrc
+        }
+        else {
+            # ~/.profile not read by bash(1), if ~/.bash_profile or ~/.bash_login exists, for example: wsl
+            if ((Test-Path ~/.bash_profile -PathType Leaf) -or (Test-Path ~/.bash_login -PathType Leaf)) {
                 updateUnixProfile ~/.bashrc
             }
         }
