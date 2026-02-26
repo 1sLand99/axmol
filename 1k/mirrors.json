@@ -40,7 +40,8 @@
     "cmake": {
       "artifacts": {
         "windows": "cmake-${ver}-windows-x86_64.zip",
-        "linux": "cmake-${ver}-linux-x86_64.sh",
+        "linux-x64": "cmake-${ver}-linux-x86_64.sh",
+        "linux-arm64": "cmake-${ver}-linux-aarch64.sh",
         "macos": "cmake-${ver}-macos-universal.tar.gz"
       },
       "mirrors": "https://github.com/Kitware/CMake/releases/download/v${ver}/"
@@ -49,6 +50,7 @@
       "artifacts": {
         "windows-x64": "ninja-win.zip",
         "linux-x64": "ninja-linux.zip",
+        "linux-arm64": "ninja-linux-aarch64.zip",
         "macos-x64": "ninja-mac.zip"
       },
       "mirrors": "https://github.com/ninja-build/ninja/releases/download/v${ver}/"
@@ -101,8 +103,9 @@
     },
     "axslcc": {
       "artifacts": {
-        "windows": "axslcc-${ver}-win64.zip",
-        "linux": "axslcc-${ver}-linux.tar.gz",
+        "windows": "axslcc-${ver}-win-x64.zip",
+        "linux-x64": "axslcc-${ver}-linux-x64.tar.gz",
+        "linux-arm64": "axslcc-${ver}-linux-arm64.tar.gz",
         "macos-x64": "axslcc-${ver}-osx-x64.tar.gz",
         "macos-arm64": "axslcc-${ver}-osx-arm64.tar.gz"
       },
