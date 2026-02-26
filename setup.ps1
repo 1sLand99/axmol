@@ -297,15 +297,8 @@ else {
     }
     elseif ($IsLinux) {
         # determine distro
-        if ($(Get-Command 'dpkg' -ErrorAction SilentlyContinue)) {
-            $LinuxDistro = 'Debian'
-        }
-        elseif ($(Get-Command 'pacman' -ErrorAction SilentlyContinue)) {
-            $LinuxDistro = 'Arch'
-        }
-        else {
-            $LinuxDistro = 'Linux'
-        }
+        $LinuxDistro = (Get-Content /etc/os-release | Where-Object { $_ -match '^ID=' }) -replace '^ID="?', '' -replace '"?$', ''
+        println "Detected Linux Distro: $LinuxDistro"
 
         # preferred ~/.profile to ensure GUI apps and terminal works
         updateUnixProfile ~/.profile
@@ -323,7 +316,7 @@ else {
         Write-Host "Install Axmol Linux dependencies (one-time)? (y/N) " -NoNewline
         $answer = Read-Host
         if ($answer -like 'y*') {
-            if ($LinuxDistro -eq 'Debian') {
+            if (($LinuxDistro -eq 'debian') -or ($LinuxDistro -eq 'ubuntu')) {
                 println "It will take few minutes"
                 $os_name = $PSVersionTable.OS
                 $os_ver = [Regex]::Match($os_name, '\d+(\.\d+)*(-[a-z0-9]+)?').Value
@@ -336,8 +329,6 @@ else {
                 }
 
                 sudo apt-get update
-                # for vm, libxxf86vm-dev also required
-
                 $DEPENDS = @()
 
                 $DEPENDS += 'libx11-dev'
@@ -372,7 +363,7 @@ else {
                     sudo apt-get install --allow-unauthenticated --yes $DEPENDS
                 }
             }
-            elseif ($LinuxDistro -eq 'Arch') {
+            elseif ($LinuxDistro -eq 'arch') {
                 $mirror_list = [System.IO.File]::ReadAllText('/etc/pacman.d/mirrorlist')
                 $tsinghua_mirror = 'https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch'
                 if (!$mirror_list.Contains($tsinghua_mirror)) {
@@ -406,8 +397,18 @@ else {
                 )
                 sudo pacman -S --needed --noconfirm @DEPENDS
             }
+            elseif($LinuxDistro -eq 'fedora') {
+                $DEPENDS = @(
+                    "gcc",
+                    "g++",
+                    "libX11-devel",
+                    "gtk3-devel",
+                    "libXxf86vm-devel"
+                )
+                sudo dnf install -y --setopt=install_weak_deps=False @DEPENDS
+            }
             else {
-                println "Warning: current Linux distro isn't officially supported by axmol community"
+                println "Warning: current Linux distro: $LinuxDistro isn't officially supported by axmol community, you need install dependencies manually"
             }
         }
     }
