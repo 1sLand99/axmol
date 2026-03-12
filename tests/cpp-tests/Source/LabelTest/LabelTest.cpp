@@ -3640,10 +3640,11 @@ LabelUnderlineStrikethroughMultiline::LabelUnderlineStrikethroughMultiline()
 {
     auto s = Director::getInstance()->getCanvasSize();
 
-    std::string font = "fonts/arial.ttf";
+    std::string_view fontName = "arial"sv;
+    std::string_view fontPath = "fonts/arial.ttf"sv;
 
     // ttf
-    TTFConfig ttfConfig(font, 14);
+    TTFConfig ttfConfig(fontPath, 14);
     ttfConfig.underline     = true;
     ttfConfig.strikethrough = true;
 
@@ -3651,16 +3652,16 @@ LabelUnderlineStrikethroughMultiline::LabelUnderlineStrikethroughMultiline()
     Label* labels[count];
 
     labels[0] = Label::createWithSystemFont("SystemFont TextVAlignment::TOP\nusing setTextColor(255, 0, 255, 100)",
-                                            font, 14, Vec2::ZERO, TextHAlignment::LEFT, TextVAlignment::TOP);
+                                            fontName, 14, Vec2::ZERO, TextHAlignment::LEFT, TextVAlignment::TOP);
     labels[0]->setTextColor(Color32(255, 0, 255, 100));
     labels[0]->enableGlow(Color32::BLUE);
 
-    labels[1] = Label::createWithSystemFont("SystemFont TextVAlignment::CENTER\nusing setColor(*RED*)", font, 14,
+    labels[1] = Label::createWithSystemFont("SystemFont TextVAlignment::CENTER\nusing setColor(*RED*)", fontName, 14,
                                             Vec2::ZERO, TextHAlignment::RIGHT, TextVAlignment::CENTER);
     labels[1]->setColor(Color32::RED);
 
-    labels[2] = Label::createWithSystemFont("SystemFont TextVAlignment::BOTTOM\nusingsetTextColor(*YELLOW)", font, 14,
-                                            Vec2::ZERO, TextHAlignment::CENTER, TextVAlignment::BOTTOM);
+    labels[2] = Label::createWithSystemFont("SystemFont TextVAlignment::BOTTOM\nusingsetTextColor(*YELLOW)", fontName,
+                                            14, Vec2::ZERO, TextHAlignment::CENTER, TextVAlignment::BOTTOM);
     labels[2]->setTextColor(Color32::YELLOW);
 
     labels[3] = Label::createWithBMFont("fonts/bitmapFontTest5.fnt", "BMFont\nwith default color",
@@ -3675,8 +3676,8 @@ LabelUnderlineStrikethroughMultiline::LabelUnderlineStrikethroughMultiline()
                              TextHAlignment::LEFT, s.width);
     labels[5]->setColor(Color32::BLUE);
 
-    labels[6] =
-        Label::createWithTTF("TTF setTextColor(*RED*)\nwith multiline 1\nand a much more longer multiline 2", font, 14);
+    labels[6] = Label::createWithTTF("TTF setTextColor(*RED*)\nwith multiline 1\nand a much more longer multiline 2",
+                                     fontPath, 14);
     labels[6]->setTextColor(Color32::RED);
 
     TTFConfig ttfConf("fonts/arial.ttf", 40, GlyphCollection::DYNAMIC, nullptr, true);
