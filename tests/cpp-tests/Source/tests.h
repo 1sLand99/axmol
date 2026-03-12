@@ -71,7 +71,9 @@
 #include "CurrentLanguageTest/CurrentLanguageTest.h"
 #include "DataVisitorTest/DataVisitorTest.h"
 #include "NetworkTest/NetworkTest.h"
-#include "DrawNodeTest/DrawNodeTest.h"
+#if AX_ENABLE_EXT_IMGUI
+#    include "DrawNodeTest/DrawNodeTest.h"
+#endif
 #include "EffectsAdvancedTest/EffectsAdvancedTest.h"
 #include "EffectsTest/EffectsTest.h"
 #include "ExtensionsTest/ExtensionsTest.h"

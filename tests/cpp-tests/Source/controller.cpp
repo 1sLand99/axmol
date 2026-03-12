@@ -62,7 +62,8 @@ public:
 
         addTest("Box2D - Basic", []() { return new Box2DTests(); });
 
-        // Box2DTestBed is only works on PC platforms, because it requires glfw which is not available on mobile platforms
+        // Box2DTestBed is only works on PC platforms, because it requires glfw which is not available on mobile
+        // platforms
 #if AX_ENABLE_EXT_IMGUI && defined(AX_PLATFORM_PC)
         addTest("Box2D - TestBed", []() { return new Box2DTestBedTests(); });
 #endif
@@ -89,7 +90,9 @@ public:
         addTest("BillBoard", []() { return new BillBoardTests(); });
         addTest("Camera3D", []() { return new Camera3DTests(); });
         addTest("Clipping", []() { return new ClippingNodeTests(); });
+#if AX_ENABLE_EXT_IMGUI
         addTest("DrawNode", []() { return new DrawNodeTests(); });
+#endif
         addTest("Label", []() { return new NewLabelTests(); });
         addTest("Layer", []() { return new LayerTests(); });
         addTest("Light", []() { return new LightTests(); });
