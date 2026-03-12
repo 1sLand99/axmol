@@ -340,7 +340,7 @@ $osVerString = if ($IsWin) { "Microsoft Windows $($NtOSVersion.ToString())" } el
 if ($IsWin) {
     # refer: https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor
     $__1k_archs = @{9="x64"; 12="arm64"}
-    $__1k_arch_code = [int](Get-CimInstance Win32_Processor).Architecture
+    $__1k_arch_code = [int](Get-CimInstance Win32_Processor)[0].Architecture
     $1k.println("Host architecture code: $__1k_arch_code")
     $HOST_CPU = $__1k_archs[$__1k_arch_code]
 } else {
