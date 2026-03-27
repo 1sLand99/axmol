@@ -657,7 +657,7 @@ void CubismRendererProfile_Cocos2dx::Save()
     // _lastColorBuffer  = nullptr; // unused
     _lastRenderTarget = GetCocos2dRenderer()->getRenderTarget();
 	//_lastRenderTargetFlag = _lastRenderTarget->getTargetFlags();
-	_lastColorBuffer  = _lastRenderTarget->_color[0].texture;
+    _lastColorBuffer   = _lastRenderTarget->_color.size() > 0 ? _lastRenderTarget->_color[0].texture : nullptr;
 	_lastDepthBuffer = _lastRenderTarget->_depthStencil.texture;
 	_lastStencilBuffer = _lastRenderTarget->_depthStencil.texture;
     _lastViewport = csmRectF(GetCocos2dRenderer()->getViewport().x, GetCocos2dRenderer()->getViewport().y, GetCocos2dRenderer()->getViewport().w, GetCocos2dRenderer()->getViewport().h);
