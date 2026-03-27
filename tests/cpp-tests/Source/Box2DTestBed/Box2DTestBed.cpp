@@ -26,6 +26,7 @@
 #include "axmol/platform/PlatformConfig.h"
 #include "extensions/axmol-ext.h"
 #include "ImGui/ImGuiPresenter.h"
+#include "implot.h"
 #include "axmol/axmol.h"
 
 #include "Box2DTestBed.h"
@@ -249,9 +250,11 @@ void Box2DTestBed::onEnter()
     ImGuiPresenter::getInstance()->enableDPIScale();
     ImGuiPresenter::getInstance()->addFont(FileUtils::getInstance()->fullPathForFilename("fonts/arial.ttf"));
     ImGuiPresenter::getInstance()->addRenderLoop("#bv3t", AX_CALLBACK_0(Box2DTestBed::renderSamples, this), this);
+    ImPlot::CreateContext();
 }
 void Box2DTestBed::onExit()
 {
+    ImPlot::DestroyContext();
     auto presenter = ImGuiPresenter::getInstance();
     if (presenter)
         presenter->removeRenderLoop("#bv3t");
@@ -362,7 +365,7 @@ void Box2DTestBed::renderSamples()
                 ImGui::Checkbox("Islands", &s_context.debugDraw.drawIslands);
                 ImGui::Checkbox("Counters", &s_context.drawCounters);
                 ImGui::Checkbox("Profile", &s_context.drawProfile);
-                ImGui::Separator();
+                ImGui::Checkbox("Frame Time", &s_context.frameTime);
 
                 ImGui::Separator();
 
