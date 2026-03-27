@@ -11,7 +11,7 @@
 
 ## Box2D
 - [![Upstream](https://img.shields.io/github/v/release/erincatto/box2d?label=Upstream)](https://github.com/erincatto/box2d)
-- Version: git-5778d74 (3.2.0 Until Mar 8, 2026)
+- Version: git-04b0e92 (3.2.0 Until Mar 23, 2026) with PR [erincatto/box2d#1042](https://github.com/erincatto/box2d/pull/1042)
 - License: MIT
 
 ## Bullet
@@ -73,7 +73,7 @@
 
 ## FreeType
 - [![Upstream](https://img.shields.io/gitlab/v/tag/freetype/freetype?label=Upstream)](https://gitlab.freedesktop.org/freetype/freetype)
-- Version: 2.14.2
+- Version: 2.14.3
 - License: BSD-style (The FreeType Project)
 
 ## Glad
