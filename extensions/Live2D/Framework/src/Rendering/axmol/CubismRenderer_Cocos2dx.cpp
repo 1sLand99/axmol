@@ -681,8 +681,8 @@ void CubismRendererProfile_Cocos2dx::Restore()
         cmd->init(0);
 
         auto restoringRT = _lastRenderTarget;
-		restoringRT->setColorAttachment(_lastColorBuffer);
-		restoringRT->setDepthStencilAttachment(_lastDepthBuffer);
+        restoringRT->setColorTexture(_lastColorBuffer);
+		restoringRT->setDepthStencilTexture(_lastDepthBuffer);
 		// restoringRT->setTargetFlags(_lastRenderTargetFlag);
         cmd->func        = [=]() -> void {
             GetCocos2dRenderer()->setRenderTarget(restoringRT);
