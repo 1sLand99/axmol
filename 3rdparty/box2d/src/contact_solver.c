@@ -708,12 +708,6 @@ static inline b2FloatW b2MulW( b2FloatW a, b2FloatW b )
 	return vmulq_f32( a, b );
 }
 
-// For determinism across platforms, we avoid vmlaq_f32/vmlsq_f32.
-// - MSVC consistently lowers vmlaq_f32/vmlsq_f32 intrinsics to single fused instructions (FMLA/FMLS), performing only one
-// rounding step.
-// - GCC/Clang can disable contraction (-ffp-contract=off) and emit FMUL+FADD/FSUB, matching Intel SSE/AVX.
-// To prevent cross-platform mismatches, we explicitly emulate FMLA/FMLS using separate mul + add/sub.
-#pragma region Deterministic math
 static inline b2FloatW b2MulAddW( b2FloatW a, b2FloatW b, b2FloatW c )
 {
 	return vaddq_f32( a, vmulq_f32( b, c ) );
@@ -723,7 +717,6 @@ static inline b2FloatW b2MulSubW( b2FloatW a, b2FloatW b, b2FloatW c )
 {
 	return vsubq_f32( a, vmulq_f32( b, c ) );
 }
-#pragma endregion
 
 static inline b2FloatW b2MinW( b2FloatW a, b2FloatW b )
 {
