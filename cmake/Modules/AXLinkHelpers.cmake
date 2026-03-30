@@ -173,7 +173,8 @@ function(ax_link_cxx_prebuilt APP_NAME AX_ROOT_DIR AX_PREBUILT_DIR)
   endif()
 
   ax_link_pred(AX_ENABLE_EXT_DRAGONBONES "DragonBones" "${AX_ROOT_DIR}/extensions/DragonBones/src")
-  ax_link_pred(AX_ENABLE_EXT_COCOSTUDIO "cocostudio" "${AX_ROOT_DIR}/extensions/cocostudio/src")
+  ax_link_pred(AX_ENABLE_EXT_SCENEEXT "sceneext" "${AX_ROOT_DIR}/extensions/sceneext/src")
+  ax_link_pred(AX_ENABLE_EXT_SCENEIO "sceneio" "${AX_ROOT_DIR}/extensions/sceneio/src")
   ax_link_pred(AX_ENABLE_EXT_ASSETMANAGER "assets-manager" "${AX_ROOT_DIR}/extensions/assets-manager/src")
   ax_link_pred(AX_ENABLE_EXT_PARTICLE3D "particle3d" "${AX_ROOT_DIR}/extensions/Particle3D/src")
   ax_link_pred(AX_ENABLE_EXT_INSPECTOR "Inspector" "${AX_ROOT_DIR}/extensions/Inspector/src")
@@ -255,7 +256,8 @@ function(ax_link_cxx_prebuilt APP_NAME AX_ROOT_DIR AX_PREBUILT_DIR)
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}pugixml.dll"
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}freetype.dll"
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}axmol.dll"
-        "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}cocostudio.dll"
+        "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}sceneext.dll"
+        "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}sceneio.dll"
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}GUI.dll"
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}particle3d.dll"
         "${AX_ROOT_DIR}/${AX_PREBUILT_DIR}/bin/${BUILD_CONFIG_DIR}physics-nodes.dll"
