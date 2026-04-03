@@ -185,6 +185,7 @@ void EventDispatcher::EventListenerVector::clearFixedListeners()
         _fixedListeners->clear();
         delete _fixedListeners;
         _fixedListeners = nullptr;
+        _gt0Index = 0;
     }
 }
 
