@@ -32,7 +32,7 @@
 
 ## ConcurrentQueue
 - [![Upstream](https://img.shields.io/github/v/tag/cameron314/concurrentqueue?label=Upstream)](https://github.com/cameron314/concurrentqueue)
-- Version: 1.0.4
+- Version: 1.0.5
 - License: BSL-1.0
 
 ## ConvertUTF
