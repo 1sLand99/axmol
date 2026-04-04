@@ -23,7 +23,7 @@
 ## ImGui
 
 - [![Upstream](https://img.shields.io/github/v/release/ocornut/imgui?label=Upstream)](https://github.com/ocornut/imgui)
-- Version: 1.92.6-docking
+- Version: 1.92.7-docking
 - License: MIT
   
 ## Inspector
