@@ -192,7 +192,7 @@
 
 ## OpenSSL
 - [![Upstream](https://img.shields.io/github/v/release/openssl/openssl?label=Upstream)](https://github.com/openssl/openssl)
-- Version: 3.0.19
+- Version: 3.0.20
 - License: Apache-2.0
 
 ## png
