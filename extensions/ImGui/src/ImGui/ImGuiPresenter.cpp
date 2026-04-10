@@ -151,6 +151,7 @@ ImVec2& operator+=(ImVec2& lhs, const ImVec2& rhs)
 }
 }  // namespace
 
+#if defined(AX_PLATFORM_GLFW)
 class ImGuiEventTracker
 {
 public:
@@ -163,7 +164,6 @@ class ImGuiSceneEventTracker : public ImGuiEventTracker
 public:
     bool initWithScene(Scene* scene)
     {
-#if defined(AX_PLATFORM_PC)
         _trackLayer = utils::newInstance<Node>(&Node::initLayer);
 
         // note: when at the first click to focus the window, this will not take effect
@@ -182,7 +182,6 @@ public:
         mouseListener->onMouseScroll = captureMouse;
         _trackLayer->getEventDispatcher()->addEventListenerWithSceneGraphPriority(mouseListener, _trackLayer);
         scene->addChild(_trackLayer, INT_MAX);
-#endif
         // add an empty sprite to avoid render problem
         // const auto sp = Sprite::create();
         // sp->setGlobalZOrder(1);
@@ -204,14 +203,12 @@ public:
 
     ~ImGuiSceneEventTracker() override
     {
-#if defined(AX_PLATFORM_PC)
         if (_trackLayer)
         {
             if (_trackLayer->getParent())
                 _trackLayer->removeFromParent();
             _trackLayer->release();
         }
-#endif
     }
 
 private:
@@ -225,7 +222,6 @@ class ImGuiGlobalEventTracker : public ImGuiEventTracker
 public:
     bool init()
     {
-#if defined(AX_PLATFORM_PC)
         // note: when at the first click to focus the window, this will not take effect
 
         auto eventDispatcher = Director::getInstance()->getEventDispatcher();
@@ -244,25 +240,23 @@ public:
         _mouseListener->onMouseMove   = captureMouse;
         _mouseListener->onMouseScroll = captureMouse;
         eventDispatcher->addEventListenerWithFixedPriority(_mouseListener, highestPriority);
-#endif
         return true;
     }
 
     ~ImGuiGlobalEventTracker() override
     {
-#if defined(AX_PLATFORM_PC)
         auto eventDispatcher = Director::getInstance()->getEventDispatcher();
         eventDispatcher->removeEventListener(_mouseListener);
         eventDispatcher->removeEventListener(_touchListener);
 
         _mouseListener->release();
         _touchListener->release();
-#endif
     }
 
     EventListenerTouchOneByOne* _touchListener = nullptr;
     EventListenerMouse* _mouseListener         = nullptr;
 };
+#endif
 
 static ImGuiPresenter* _instance = nullptr;
 ImGuiPresenter* ImGuiPresenter::getInstance()
@@ -368,10 +362,12 @@ void ImGuiPresenter::cleanup()
 
     if (!_renderLoops.empty())
     {
+#if defined(AX_PLATFORM_GLFW)
         for (auto item : _renderLoops)
         {
             delete item.second.tracker;
         }
+#endif
         _renderLoops.clear();
     }
 
@@ -419,11 +415,6 @@ float ImGuiPresenter::enableDPIScale(float userScale)
     }
 
     return mainScale;
-}
-
-void ImGuiPresenter::setViewResolution(float width, float height)
-{
-    ImGui_ImplAxmol_SetViewResolution(width, height);
 }
 
 void ImGuiPresenter::addFont(std::string_view fontFile, float fontSize)
@@ -529,9 +520,13 @@ void ImGuiPresenter::update()
         auto& imLoop = iter->second;
         if (imLoop.removing)
         {
+#if defined(AX_PLATFORM_GLFW)
             auto tracker = imLoop.tracker;
             iter         = _renderLoops.erase(iter);
             delete tracker;
+#else
+            iter = _renderLoops.erase(iter);
+#endif
             continue;
         }
         imLoop.func();  // invoke ImGui loop func
@@ -543,23 +538,31 @@ void ImGuiPresenter::update()
 
 bool ImGuiPresenter::addRenderLoop(std::string_view id, std::function<void()> func, Scene* target)
 {
-
+#if defined(AX_PLATFORM_GLFW)
     auto tracker = target ? static_cast<ImGuiEventTracker*>(utils::newInstance<ImGuiSceneEventTracker>(
                                 &ImGuiSceneEventTracker::initWithScene, target))
                           : static_cast<ImGuiEventTracker*>(utils::newInstance<ImGuiGlobalEventTracker>());
+#endif
 
     auto fourccId = fourccValue(id);
     auto iter     = _renderLoops.find(fourccId);
     if (iter == _renderLoops.end())
     {
+#if defined(AX_PLATFORM_GLFW)
         _renderLoops.emplace(fourccId, ImGuiLoop{tracker, std::move(func)});
+#else
+        _renderLoops.emplace(fourccId, ImGuiLoop{std::move(func)});
+#endif
         return true;
     }
 
     // allow reuse imLoop, update func, tracker, removing status
-    auto& imLoop   = iter->second;
-    imLoop.func    = std::move(func);
+    auto& imLoop = iter->second;
+    imLoop.func  = std::move(func);
+#if defined(AX_PLATFORM_GLFW)
+    AX_SAFE_DELETE(imLoop.tracker);
     imLoop.tracker = tracker;
+#endif
 
     if (imLoop.removing)
         imLoop.removing = false;
