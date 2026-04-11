@@ -20,42 +20,37 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
- refer to: box2d/src/constants.h
-
  ****************************************************************************/
 
-#pragma once
-namespace ax::physics2d
+#include <windows.ui.xaml.media.dxinterop.h>
+#include <winrt/Windows.UI.Xaml.Controls.h>
+#include <winrt/Windows.Foundation.Numerics.h>
+#include "axmol/platform/winrt/DispatcherUtil.h"
+
+namespace ax::winrt
 {
-// pixels per meter
-inline constexpr float PixelsPerMeter = 10.0f;
+using Vector2 = winrt::Windows::Foundation::Numerics::float2;
+using winrt::Windows::Foundation::Size;
+using winrt::Windows::UI::Xaml::Controls::ISwapChainPanel;
+using winrt::Windows::UI::Xaml::Controls::SwapChainPanel;
 
-// same with B2_HUGE
-inline constexpr float LargeClamp = 1e5f * PixelsPerMeter;
-
-inline constexpr float LinearSlop = 0.005f;
-
-// (N)
-inline constexpr float MaxForce = 1e5f;  // |F| <= MaxForce
-
-// (rad / deg)
-inline constexpr float MaxAngleDeg = 180.0f * 0.99f;  // Box2D v3 limit
-inline constexpr float MaxAngleRad = 3.14159265359f * 0.99f;
-
-// (kg)
-inline constexpr float MaxMass = 1e6f;
-inline constexpr float MinMass = 1e-3f;
-
-// (kg/m²)
-inline constexpr float MaxDensity = 1e5f;
-inline constexpr float MinDensity = 0.0f;
-
-// (m/s)
-inline constexpr float MaxLinearVelocity  = 1e4f;
-inline constexpr float MaxAngularVelocity = 1e4f;
-
-// damping
-inline constexpr float MaxDamping = 1e3f;
-
-}  // namespace ax::physics2d
+inline static HRESULT GetSwapChainPanelRenderMetrics(SwapChainPanel& swapChainPanel,
+                                                     const CoreDispatcher& dispatcher,
+                                                     Size& windowSize,
+                                                     Vector2& renderScale)
+{
+    try
+    {
+        RunOnUIThreadSync(dispatcher, [&]() {
+            windowSize      = swapChainPanel.RenderSize();
+            auto panelIface = swapChainPanel.as<ISwapChainPanel>();
+            renderScale     = Vector2{panelIface.CompositionScaleX(), panelIface.CompositionScaleY()};
+        });
+        return S_OK;
+    }
+    catch (...)
+    {
+        return E_FAIL;
+    }
+}
+}  // namespace ax::winrt
