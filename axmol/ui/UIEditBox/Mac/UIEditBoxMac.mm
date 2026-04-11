@@ -98,9 +98,9 @@
         [_textInput performSelector:@selector(setTextColor:) withObject:_textInput.axui_textColor];
         [_textInput performSelector:@selector(setBackgroundColor:) withObject:[NSColor clearColor]];
 
-        if (![_textInput isKindOfClass:[NSTextView class]])
+        if (![_textInput isKindOfClass:[NSTextView class]] && [_textInput respondsToSelector:@selector(setBordered:)])
         {
-            [_textInput performSelector:@selector(setBordered:) withObject:nil];
+            [(id)_textInput setBordered:NO];
         }
         _textInput.hidden     = NO;
         _textInput.wantsLayer = YES;
