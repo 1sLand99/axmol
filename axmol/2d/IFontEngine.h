@@ -54,7 +54,13 @@ struct GlyphResolution
 class IFontEngine
 {
 public:
-    virtual const GlyphResolution* resolveGlyph(char32_t charCode) const = 0;
+    /*
+     * @param charCode the UTF-32 unicode codepoint
+     * @param style    the FreeType face->style_flags
+     * @return Pointer to GlyphResolution if the glyph was successfully resolved;
+     *         nullptr if resolution failed (e.g. glyph not found in any font/fallback).
+     */
+    virtual const GlyphResolution* resolveGlyph(char32_t charCode, unsigned int style) const = 0;
 };
 
 }  // namespace ax

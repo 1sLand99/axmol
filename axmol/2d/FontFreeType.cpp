@@ -52,6 +52,7 @@ bool FontFreeType::_streamParsingEnabled    = false;
 bool FontFreeType::_doNativeBytecodeHinting = true;
 bool FontFreeType::_globalSDFEnabled        = false;
 const int FontFreeType::DistanceMapSpread   = 6;
+IFontEngine* FontFreeType::_fontEngine      = nullptr;
 
 // By default, will render square when character glyph missing in current font
 char32_t FontFreeType::_mssingGlyphCharacter = 0;
@@ -98,8 +99,6 @@ static void ft_stream_close_callback(FT_Stream stream)
     stream->descriptor.pointer = nullptr;
 }
 
-static IFontEngine* s_FontEngine{nullptr};
-
 FontFreeType* FontFreeType::createFallbackFont(const GlyphResolution& glyphRes, FontFreeType* mainFont)
 {
     if (glyphRes.face)
@@ -119,7 +118,7 @@ FontFreeType* FontFreeType::createFallbackFont(const GlyphResolution& glyphRes, 
 
 void FontFreeType::setFontEngine(IFontEngine* fe)
 {
-    s_FontEngine = fe;
+    _fontEngine = fe;
 }
 
 FontFreeType* FontFreeType::create(std::string_view fontName,
@@ -347,6 +346,8 @@ bool FontFreeType::initWithFace(FT_Face face)
 
         _lineHeight = static_cast<int>((_ascender - _descender) >> 6);
 
+        _styleFlags = face->style_flags;
+
         _ftFace = face;
 
         // done and good
@@ -451,9 +452,9 @@ uint8_t* FontFreeType::getGlyphBitmap(char32_t charCode,
         AXLOGW("The font face: {} doesn't contains char: <{}>", _ftFace->charmap->face->family_name, charUTF8);
 #endif
 
-        if (s_FontEngine)
+        if (_fontEngine)
         {  // resolving glyph by font engine
-            auto res = s_FontEngine->resolveGlyph(charCode);
+            auto res = _fontEngine->resolveGlyph(charCode, _styleFlags);
             if (res)
             {
                 outFallbackRes = res;

@@ -186,6 +186,7 @@ private:
     static bool _doNativeBytecodeHinting;
     static bool _globalSDFEnabled;
     static char32_t _mssingGlyphCharacter;
+    static IFontEngine* _fontEngine;
 
     static bool initFreeType();
 
@@ -213,6 +214,7 @@ private:
     int _ascender;
     int _descender;
     int _lineHeight;
+    unsigned int _styleFlags{0};  // the freetype font style flags
 
     GlyphCollection _usedGlyphs;
     std::string _customGlyphs;
