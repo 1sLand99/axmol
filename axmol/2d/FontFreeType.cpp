@@ -441,14 +441,13 @@ uint8_t* FontFreeType::getGlyphBitmap(char32_t charCode,
     auto glyphIndex = FT_Get_Char_Index(_ftFace, static_cast<FT_ULong>(charCode));
     if (glyphIndex == 0)
     {
+        if (charCode == '\n' || charCode == '\r')
+            return nullptr;
 #if defined(_AX_DEBUG) && _AX_DEBUG > 0
         char32_t ntcs[2] = {charCode, (char32_t)0};
         std::u32string_view charUTF32(ntcs, 1);
         std::string charUTF8;
         ax::text_utils::UTF32ToUTF8(charUTF32, charUTF8);
-
-        if (charUTF8 == "\n")
-            charUTF8 = "\\n";
         AXLOGW("The font face: {} doesn't contains char: <{}>", _ftFace->charmap->face->family_name, charUTF8);
 #endif
 
