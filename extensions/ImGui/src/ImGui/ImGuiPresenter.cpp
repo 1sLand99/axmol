@@ -325,7 +325,7 @@ void ImGuiPresenter::init()
 #endif
     ImGui_ImplAxmol_Init();
 
-    ImGui_ImplAxmol_SetUpdateFontsFunc(&ImGuiPresenter::updateFonts, this);
+    ImGui_ImplAxmol_SetRebuildFontsFunc(&ImGuiPresenter::rebuildCustomFonts, this);
 
     ImGui::StyleColorsClassic();
 
@@ -350,7 +350,7 @@ void ImGuiPresenter::cleanup()
     eventDispatcher->removeEventListener(_event2);
     eventDispatcher->removeEventListener(_event3);
 
-    ImGui_ImplAxmol_SetUpdateFontsFunc(nullptr, nullptr);
+    ImGui_ImplAxmol_SetRebuildFontsFunc(nullptr, nullptr);
     ImGui_ImplAxmol_Shutdown();
 #if defined(AX_PLATFORM_GLFW)
     ImGui_ImplGlfw_Shutdown();
@@ -375,18 +375,25 @@ void ImGuiPresenter::cleanup()
     _objsRefIdMap.clear();
 }
 
-void ImGuiPresenter::updateFonts(void* ud)
+void ImGuiPresenter::rebuildCustomFonts(void* ud)
 {
-    auto thiz  = (ImGuiPresenter*)ud;
-    auto& io   = ImGui::GetIO();
-    auto atlas = io.Fonts;
+    auto thiz = (ImGuiPresenter*)ud;
+    auto& io  = ImGui::GetIO();
 
-    atlas->Clear();
-    atlas->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
+    if (!thiz->_customLoadedFonts.empty())
+    {
+        for (auto& [_, imFont] : thiz->_customLoadedFonts)
+        {
+            io.Fonts->RemoveFont(imFont);
+        }
+        thiz->_customLoadedFonts.clear();
+    }
+
+    io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
 
     ImFontConfig fontCfg{};
 
-    for (auto& [fontPath, fontSize] : thiz->_fontsInfoMap)
+    for (auto& [fontPath, fontSize] : thiz->_customFontSpecs)
     {
         fontCfg.SizePixels = fontSize * thiz->_mainScale;
 
@@ -394,7 +401,9 @@ void ImGuiPresenter::updateFonts(void* ud)
         ssize_t bufferSize = 0;
         void* buffer       = data.takeBuffer(&bufferSize);
 
-        atlas->AddFontFromMemoryTTF(buffer, bufferSize, 0, &fontCfg);
+        auto imFont = io.Fonts->AddFontFromMemoryTTF(buffer, bufferSize, 0, &fontCfg);
+        if (imFont)
+            thiz->_customLoadedFonts.emplace(fontPath, imFont);
     }
 }
 
@@ -421,7 +430,7 @@ void ImGuiPresenter::addFont(std::string_view fontFile, float fontSize)
 {
     if (FileUtils::getInstance()->isFileExistInternal(fontFile))
     {
-        bool isDirty = _fontsInfoMap.emplace(fontFile, fontSize).second;
+        bool isDirty = _customFontSpecs.emplace(fontFile, fontSize).second;
         if (isDirty)
             ImGui_ImplAxmol_MarkFontsDirty();
     }
@@ -429,16 +438,16 @@ void ImGuiPresenter::addFont(std::string_view fontFile, float fontSize)
 
 void ImGuiPresenter::removeFont(std::string_view fontFile)
 {
-    auto count = _fontsInfoMap.size();
-    _fontsInfoMap.erase(fontFile);
-    if (count != _fontsInfoMap.size())
+    auto count = _customFontSpecs.size();
+    _customFontSpecs.erase(fontFile);
+    if (count != _customFontSpecs.size())
         ImGui_ImplAxmol_MarkFontsDirty();
 }
 
 void ImGuiPresenter::clearFonts()
 {
-    bool haveCustomFonts = !_fontsInfoMap.empty();
-    _fontsInfoMap.clear();
+    bool haveCustomFonts = !_customFontSpecs.empty();
+    _customFontSpecs.clear();
     if (haveCustomFonts)
         ImGui_ImplAxmol_MarkFontsDirty();
 }

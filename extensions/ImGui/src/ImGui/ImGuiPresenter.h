@@ -170,7 +170,7 @@ public:
     int objectRef(Object* p);
 
 private:
-    static void updateFonts(void*);
+    static void rebuildCustomFonts(void*);
 
     // perform draw ImGui stubs
     void beginFrame();
@@ -201,7 +201,8 @@ private:
 
     int64_t _beginFrames = 0;
 
-    tlx::string_map<float> _fontsInfoMap;
+    tlx::string_map<float> _customFontSpecs;
+    tlx::string_map<ImFont*> _customLoadedFonts;
 
     bool _purgeNextLoop = false;  // whether invoke director->end at next loop
 
