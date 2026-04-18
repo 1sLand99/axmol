@@ -57,7 +57,7 @@
 
 ## fast_float
 - [![Upstream](https://img.shields.io/github/v/release/fastfloat/fast_float?label=Upstream)](https://github.com/fastfloat/fast_float)
-- Version: 8.2.4
+- Version: 8.2.5
 - License: MIT
 
 ## flatbuffers
@@ -234,7 +234,7 @@
 
 ## simdjson
 - [![Upstream](https://img.shields.io/github/v/tag/simdjson/simdjson?label=Upstream)](https://github.com/simdjson/simdjson)
-- Version: 4.6.1
+- Version: 4.6.2
 - License: Apache-2.0
 
 ## stb (stb_image)
