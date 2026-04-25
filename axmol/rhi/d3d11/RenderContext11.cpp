@@ -312,9 +312,7 @@ RenderContextImpl::~RenderContextImpl()
     AX_SAFE_RELEASE_NULL(_renderPipeline);
 
     SafeRelease(_swapChain);
-
-    if (_rasterState)
-        _rasterState.Reset();
+    _rasterStateCache.clear();
 }
 
 bool RenderContextImpl::updateSurface(SurfaceHandle /*surface*/, uint32_t width, uint32_t height)
@@ -498,29 +496,37 @@ void RenderContextImpl::applyRenderStates()
 
     if (bitmask::any(RenderStateFlag::RasterDesc, _dirtyStateFlags))
     {
-        D3D11_RASTERIZER_DESC desc = {};
-        desc.FillMode              = D3D11_FILL_SOLID;
-
-        switch (_rasterDesc.cullMode)
+        const auto key = std::bit_cast<uint32_t>(_rasterDesc);
+        auto it        = _rasterStateCache.find(key);
+        if (it == _rasterStateCache.end()) [[unlikely]]
         {
-        case CullMode::NONE:
-            desc.CullMode = D3D11_CULL_NONE;
-            break;
-        case CullMode::BACK:
-            desc.CullMode = D3D11_CULL_BACK;
-            break;
-        case CullMode::FRONT:
-            desc.CullMode = D3D11_CULL_FRONT;
-            break;
+            D3D11_RASTERIZER_DESC desc = {};
+            desc.FillMode              = D3D11_FILL_SOLID;
+
+            switch (_rasterDesc.cullMode)
+            {
+            case CullMode::NONE:
+                desc.CullMode = D3D11_CULL_NONE;
+                break;
+            case CullMode::BACK:
+                desc.CullMode = D3D11_CULL_BACK;
+                break;
+            case CullMode::FRONT:
+                desc.CullMode = D3D11_CULL_FRONT;
+                break;
+            }
+
+            desc.FrontCounterClockwise = (_rasterDesc.winding == Winding::COUNTER_CLOCK_WISE);
+
+            desc.DepthClipEnable = TRUE;
+            desc.ScissorEnable   = _rasterDesc.scissorEnable ? TRUE : FALSE;
+
+            ComPtr<ID3D11RasterizerState> state;
+            _AXASSERT_HR(_driver->getDevice()->CreateRasterizerState(&desc, state.GetAddressOf()));
+            it = _rasterStateCache.emplace(key, std::move(state)).first;
         }
 
-        desc.FrontCounterClockwise = (_rasterDesc.winding == Winding::COUNTER_CLOCK_WISE);
-
-        desc.DepthClipEnable = TRUE;
-        desc.ScissorEnable   = _rasterDesc.scissorEnable ? TRUE : FALSE;
-
-        _AXASSERT_HR(_driver->getDevice()->CreateRasterizerState(&desc, _rasterState.ReleaseAndGetAddressOf()));
-        _d3d11Context->RSSetState(_rasterState.Get());
+        _d3d11Context->RSSetState(it->second.Get());
         _dirtyStateFlags &= ~RenderStateFlag::RasterDesc;
     }
 }
