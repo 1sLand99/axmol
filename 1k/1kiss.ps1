@@ -1598,7 +1598,7 @@ function Get-VsToolsetFromMsvcVersion {
     $ver = [Version]$msvcVer
 
     foreach ($mapping in $config.mappings) {
-        $max = [Version]$mapping.maxVersion
+        $max = [Version]$mapping.threshold
         if ($ver -lt $max) {
             return $mapping.toolset
         }
