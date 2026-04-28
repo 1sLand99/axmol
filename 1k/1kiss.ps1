@@ -1,11 +1,8 @@
-# //////////////////////////////////////////////////////////////////////////////////////////
-# // A multi-platform support c++11 library with focus on asynchronous socket I/O for any
-# // client application.
-# //////////////////////////////////////////////////////////////////////////////////////////
+# Copyright (c) 2019-present Axmol Engine contributors (see AUTHORS.md)
+#
+#   https://axmol.dev/
 #
 # The MIT License (MIT)
-#
-# Copyright (c) 2012-2025 HALX99
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +31,7 @@
 #  -a: build arch: x86,x64,armv7,arm64
 #  -d: the build workspace, i.e project root which contains root CMakeLists.txt, empty use script run working directory aka cwd
 #  -cc: The C/C++ compiler toolchain: clang, msvc, gcc(mingw) or empty use default installed on current OS
-#       msvc: msvc-120, msvc-141
+#       msvc: msvc-120, msvc-140 (vs2015), mvsc-141 (vs2017), v142 (vs2019) , v143 (vs2022), v145 (vs2026)
 #       ndk: ndk-r16b, ndk-r16b+
 #  -xt: cross build tool, default: cmake, for android can be gradlew, can be path of cross build tool program
 #  -xc: cross build tool configure options: i.e.  -xc '-Dbuild'
@@ -1591,6 +1588,25 @@ function setup_gclient() {
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
 }
 
+function Get-VsToolsetFromMsvcVersion {
+    param(
+        [string]$msvcVer,
+        [string]$configPath = "$PSScriptRoot\vs_toolset.json"
+    )
+
+    $config = Get-Content $configPath -Raw | ConvertFrom-Json
+    $ver = [Version]$msvcVer
+
+    foreach ($mapping in $config.mappings) {
+        $max = [Version]$mapping.maxVersion
+        if ($ver -lt $max) {
+            return $mapping.toolset
+        }
+    }
+
+    return "v145"
+}
+
 # preprocess methods:
 function preprocess_win() {
     $outputOptions = @()
@@ -1603,7 +1619,8 @@ function preprocess_win() {
             if ($TOOLCHAIN_VER -match '^\d+$') {
                 $outputOptions += "-Tv$TOOLCHAIN_VER"
             } elseif($TOOLCHAIN_VER -match '^\d+\.\d+$') {
-                $outputOptions += '-T', "version=$TOOLCHAIN_VER"
+                $vs_toolset = Get-VsToolsetFromMsvcVersion $TOOLCHAIN_VER
+                $outputOptions += '-T', "$vs_toolset,version=$TOOLCHAIN_VER"
             }
             # refer: https://cmake.org/cmake/help/latest/variable/CMAKE_GENERATOR_PLATFORM.html
             if($options.sdk) {

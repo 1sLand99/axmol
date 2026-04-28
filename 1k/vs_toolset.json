@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "description": "MSVC compiler version to Visual Studio toolset mapping",
+  "mappings": [
+    { "maxVersion": "14.0",  "toolset": "v120", "vsYear": "2013" },
+    { "maxVersion": "14.10", "toolset": "v140", "vsYear": "2015" },
+    { "maxVersion": "14.20", "toolset": "v141", "vsYear": "2017" },
+    { "maxVersion": "14.30", "toolset": "v142", "vsYear": "2019" },
+    { "maxVersion": "14.50", "toolset": "v143", "vsYear": "2022" },
+    { "maxVersion": "99.99", "toolset": "v145", "vsYear": "2026 (or later)" }
+  ]
+}
