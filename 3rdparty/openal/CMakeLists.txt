@@ -1387,6 +1387,7 @@ set(BACKENDS  "${BACKENDS} Null")
 
 # Get the known version info to create version.h
 set(LIB_VERSION_NUM ${OpenAL_VERSION_MAJOR},${OpenAL_VERSION_MINOR},${OpenAL_VERSION_PATCH},0)
+
 find_package(Git)
 if(ALSOFT_UPDATE_BUILD_VERSION AND GIT_FOUND AND EXISTS "${OpenAL_SOURCE_DIR}/.git")
     set(GIT_DIR "${OpenAL_SOURCE_DIR}/.git")
