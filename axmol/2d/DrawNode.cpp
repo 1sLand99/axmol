@@ -83,7 +83,7 @@ DrawNode::DrawNode()
     if (!_verticesCircle)
     {
         _verticesCircle   = new Vec2[_segments + 2];
-        const int _radius = 100;  // 100 seems to be a good default radius
+        const int _radius = AX_DRAWNODE_PRE_CALCULATING_RADIUS;
         const float coef  = 2 * (float)M_PI / _segments;
         float rsX         = _radius * 1;
         float rsY         = _radius * 1;
@@ -1095,45 +1095,42 @@ void DrawNode::_drawSegment(const Vec2& from,
     }
 }
 
-void DrawNode::_drawPhysicsCircle(const Vec2& center, float radius, const Color& color, Vec2& vec, bool type)
+void DrawNode::_drawSolidCircle(const Vec2& center, float radius, const Color& color, Vec2& vec)
 {
     Color fillColor = Color(1.0f - color.r, 1.0f - color.g, 1.0f - color.b, 1.0f);
-    if (type)
-    {
-        auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 6));
-        _trianglesDirty = true;
+#ifdef AX_DRAWNODE_FAST_LINE2CENTER
+    auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 9));
+    _trianglesDirty = true;
 
-        V2F_T2F_C4F a = {Vec2(center.x - radius, center.y - radius), Vec2(-1.0f, -1.0f), color};
-        V2F_T2F_C4F b = {Vec2(center.x - radius, center.y + radius), Vec2(-1.0f, 1.0f), color};  // TOP_LEFT
-        V2F_T2F_C4F c = {Vec2(center.x + radius, center.y + radius), Vec2(1.0f, 1.0f), color};
-        V2F_T2F_C4F d = {Vec2(center.x + radius, center.y - radius), Vec2(1.0f, -1.0f), color};
+    V2F_T2F_C4F a = {Vec2(center.x - radius, center.y - radius), Vec2(-1.0f, -1.0f), color};
+    V2F_T2F_C4F b = {Vec2(center.x - radius, center.y + radius), Vec2(-1.0f, 1.0f), color};  // TOP_LEFT
+    V2F_T2F_C4F c = {Vec2(center.x + radius, center.y + radius), Vec2(1.0f, 1.0f), color};
+    V2F_T2F_C4F d = {Vec2(center.x + radius, center.y - radius), Vec2(1.0f, -1.0f), color};
 
-        triangles[0] = {a, b, c};
-        triangles[1] = {a, c, d};
-        auto line    = expandBufferAndGetPointer(_lines, 2);
-        _linesDirty  = true;
+    triangles[0] = {a, b, c};
+    triangles[1] = {a, c, d};
 
-        line[0] = {center, Vec2::ZERO, fillColor};
-        line[1] = {center + vec * radius, Vec2::ZERO, fillColor};
-    }
-    else
-    {
-        auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 9));
-        _trianglesDirty = true;
+    V2F_T2F_C4F e = {center - Vec2(1, 1), Vec2::ZERO, fillColor};
+    V2F_T2F_C4F f = {center + vec * radius, Vec2::ZERO, fillColor};
+    V2F_T2F_C4F g = {center + Vec2(1, 1), Vec2::ZERO, fillColor};
+    triangles[2]  = {g, f, e};
+#else
+    auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 6));
+    _trianglesDirty = true;
 
-        V2F_T2F_C4F a = {Vec2(center.x - radius, center.y - radius), Vec2(-1.0f, -1.0f), color};
-        V2F_T2F_C4F b = {Vec2(center.x - radius, center.y + radius), Vec2(-1.0f, 1.0f), color};  // TOP_LEFT
-        V2F_T2F_C4F c = {Vec2(center.x + radius, center.y + radius), Vec2(1.0f, 1.0f), color};
-        V2F_T2F_C4F d = {Vec2(center.x + radius, center.y - radius), Vec2(1.0f, -1.0f), color};
+    V2F_T2F_C4F a = {Vec2(center.x - radius, center.y - radius), Vec2(-1.0f, -1.0f), color};
+    V2F_T2F_C4F b = {Vec2(center.x - radius, center.y + radius), Vec2(-1.0f, 1.0f), color};  // TOP_LEFT
+    V2F_T2F_C4F c = {Vec2(center.x + radius, center.y + radius), Vec2(1.0f, 1.0f), color};
+    V2F_T2F_C4F d = {Vec2(center.x + radius, center.y - radius), Vec2(1.0f, -1.0f), color};
 
-        triangles[0] = {a, b, c};
-        triangles[1] = {a, c, d};
+    triangles[0] = {a, b, c};
+    triangles[1] = {a, c, d};
+    auto line    = expandBufferAndGetPointer(_lines, 2);
+    _linesDirty  = true;
 
-        V2F_T2F_C4F e = {center - Vec2(1, 1), Vec2::ZERO, fillColor};
-        V2F_T2F_C4F f = {center + vec * radius, Vec2::ZERO, fillColor};
-        V2F_T2F_C4F g = {center + Vec2(1, 1), Vec2::ZERO, fillColor};
-        triangles[2]  = {g, f, e};
-    }
+    line[0] = {center, Vec2::ZERO, fillColor};
+    line[1] = {center + vec * radius, Vec2::ZERO, fillColor};
+#endif  // AX_DRAWNODE_FAST_LINE2CENTER
 }
 
 void DrawNode::drawSolidCircle(const Vec2& center, float radius, const Color& color, float angle)
@@ -1145,12 +1142,37 @@ void DrawNode::drawSolidCircle(const Vec2& center, float radius, const Color& co
         Vec2 _angle = {cosf(aa), sinf(aa)};
         vec         = {_angle.x, _angle.y};
     }
-    _drawPhysicsCircle(center, radius, color, vec);
+    _drawSolidCircle(center, radius, color, vec);
+}
+
+void DrawNode::_drawSolidCircle(const Vec2& center,
+                                float radius,
+                                const Color& fillColor,
+                                const Color& borderColor,
+                                float thickness)
+{
+    auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 12));
+    _trianglesDirty = true;
+
+    float radius1 = radius - thickness;
+
+    V2F_T2F_C4F a = {Vec2(center.x - radius1, center.y - radius1), Vec2(-1.0f, -1.0f), borderColor};
+    V2F_T2F_C4F b = {Vec2(center.x - radius1, center.y + radius1), Vec2(-1.0f, 1.0f), borderColor};
+    V2F_T2F_C4F c = {Vec2(center.x + radius1, center.y + radius1), Vec2(1.0f, 1.0f), borderColor};
+    V2F_T2F_C4F d = {Vec2(center.x + radius1, center.y - radius1), Vec2(1.0f, -1.0f), borderColor};
+    triangles[0]  = {a, b, c};
+    triangles[1]  = {a, c, d};
+
+    a            = {Vec2(center.x - radius, center.y - radius), Vec2(-1.0f, -1.0f), fillColor};
+    b            = {Vec2(center.x - radius, center.y + radius), Vec2(-1.0f, 1.0f), fillColor};
+    c            = {Vec2(center.x + radius, center.y + radius), Vec2(1.0f, 1.0f), fillColor};
+    d            = {Vec2(center.x + radius, center.y - radius), Vec2(1.0f, -1.0f), fillColor};
+    triangles[2] = {a, b, c};
+    triangles[3] = {a, c, d};
 }
 
 void DrawNode::_drawSolidCircle(const Vec2& center, float radius, const Color& fillColor)
 {
-    drawSolidCircle(center, radius, fillColor, 10);
     auto triangles  = reinterpret_cast<V2F_T2F_C4F_Triangle*>(expandBufferAndGetPointer(_triangles, 6));
     _trianglesDirty = true;
 
