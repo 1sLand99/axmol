@@ -249,6 +249,7 @@ $cmake_generators = @{
 $cmdlinetools_revs = @{
     '12.0' = '11076708'
     '19.0' = '13114758'
+    '20.0' = '14742923'
 }
 
 $ndk_r23d_rev = '12186248'
@@ -500,13 +501,18 @@ else {
 $1k.println("proj_dir=$((Get-Location).Path), install_prefix=$install_prefix")
 
 # 1kdist
-$sentry_file = Join-Path $PSScriptRoot '.active-mirror'
+$Script:1k_env_file = Join-Path $PSScriptRoot '.env'
 
-if ($1k.isfile($sentry_file)) {
-    $Script:ACTIVE_MIRROR = Get-Content $sentry_file
+if ($1k.isfile($1k_env_file)) {
+    $Script:1k_env = ConvertFrom-Props (Get-Content $1k_env_file)
 }
 else {
-    $Script:ACTIVE_MIRROR = 'origin'
+    $Script:1k_env = @{
+        'active_mirror' = 'origin'
+        'android_sdk_root' = ''
+    }
+    $1k_env_str = Global:ConvertTo-Props $Script:1k_env
+    [System.IO.File]::WriteAllText($1k_env_file, $1k_env_str)
 }
 
 $mirrors_conf_file = Join-Path $PSScriptRoot 'mirrors.json'
@@ -523,7 +529,7 @@ function devtool_url($name, $ver = $null, $mirror = $null) {
         $base_url = $tool_info.mirrors
     }
     else {
-        if (!$mirror) { $mirror = $Script:ACTIVE_MIRROR }
+        if (!$mirror) { $mirror = $Script:1k_env.active_mirror }
         $base_url = $tool_info.mirrors.$mirror
     }
 
@@ -1309,7 +1315,12 @@ function setup_android_sdk() {
         $1k.println("Using android sdk dir from env:ANDROID_SDK_ROOT: $selected_sdk_root")
     }
     else {
-        $selected_sdk_root = Join-Path $install_prefix 'adt/sdk'
+        $old_sdk_root = Join-Path $install_prefix 'adt/sdk'
+        $selected_sdk_root = Join-Path $install_prefix 'android-sdk'
+        if ((Test-Path $old_sdk_root -PathType Container) -and !(Test-Path $selected_sdk_root -PathType Container))
+        {
+            Move-Item -Path $old_sdk_root -Destination $selected_sdk_root
+        }
         $1k.println("Using android sdk dir from axmol external: $selected_sdk_root")
     }
 
@@ -1447,7 +1458,14 @@ function setup_android_sdk() {
     }
 
     if (!$ndkOnly) {
-        $sdk_comps_list = 'platform-tools', "platforms/android-$($manifest['target_sdk'])", "build-tools/$($manifest['buildtools'])"
+        $sdk_api_level = $manifest['target_sdk']
+        $parts = $sdk_api_level.Split('.')
+        $major = [int]$parts[0]
+        if (($major -ge 37) -and ($parts.Count -lt 2)) {
+            $sdk_api_level = "$major.0"
+        }
+
+        $sdk_comps_list = 'platform-tools', "platforms/android-$sdk_api_level", "build-tools/$($manifest['buildtools'])"
         foreach ($comp in $sdk_comps_list) {
             if (!$1k.isfile("$sdk_root/$comp/source.properties") -or $updateAdt) {
                 $sdk_comps += $comp.Replace('/', ';')
@@ -1623,9 +1641,9 @@ function preprocess_win() {
             elseif ($TOOLCHAIN_VER -match '^\d+\.\d+$') {
                 $toolsetInfo = Get-VsToolsetFromMsvcVersion $TOOLCHAIN_VER
                 $outputOptions += '-T', "$($toolsetInfo.toolset),version=$TOOLCHAIN_VER"
-                # Specifying a CMake generator requires multiple Visual Studio versions 
+                # Specifying a CMake generator requires multiple Visual Studio versions
                 # (e.g., "Visual Studio $($toolsetInfo.vsVer) $($toolsetInfo.vsYear)").
-                # If no generator is specified, CMake will automatically select the latest 
+                # If no generator is specified, CMake will automatically select the latest
                 # available version, so only the newest Visual Studio (e.g., VS2026) needs to be installed.
                 # $Script:cmake_generator = "Visual Studio $($toolsetInfo.vsVer) $($toolsetInfo.vsYear)"
             }
@@ -1872,6 +1890,13 @@ elseif ($Global:is_android) {
     $env:ANDROID_NDK_HOME = $ndk_root
     $env:ANDROID_NDK_ROOT = $ndk_root
 
+    if ($Script:1k_env.android_sdk_root -ne $sdk_root)
+    {
+        $Script:1k_env['android_sdk_root'] = $sdk_root
+        $1k_env_str = ConvertTo-Props $Script:1k_env
+        [System.IO.File]::WriteAllText($1k_env_file, $1k_env_str)
+    }
+
     $ndk_host = @('windows', 'linux', 'darwin')[$HOST_OS_INT]
     $env:ANDROID_NDK_BIN = Join-Path $ndk_root "toolchains/llvm/prebuilt/$ndk_host-x86_64/bin"
     function active_ndk_toolchain() {
@@ -2096,8 +2121,8 @@ if (!$setupOnly) {
             $build_tool = (Get-Command $options.xt).Source
             $build_tool_dir = Split-Path $build_tool -Parent
             Push-Location $build_tool_dir
+            $build_task = @('assemble', 'bundle')[$options.aab]
             if (!$configOnly) {
-                $build_task = @('assemble', 'bundle')[$options.aab]
                 if ($optimize_flag -eq 'Debug') {
                     & $build_tool ${build_task}Debug $CONFIG_ALL_OPTIONS | Out-Host
                 }
@@ -2107,9 +2132,11 @@ if (!$setupOnly) {
             }
             else {
                 if ($optimize_flag -eq 'Debug') {
+                    & $build_tool ${build_task}Debug $CONFIG_ALL_OPTIONS --dry-run | Out-Host
                     & $build_tool configureCMakeDebug prepareKotlinBuildScriptModel $CONFIG_ALL_OPTIONS | Out-Host
                 }
                 else {
+                    & $build_tool ${build_task}Release $CONFIG_ALL_OPTIONS --dry-run | Out-Host
                     & $build_tool configureCMakeRelWithDebInfo prepareKotlinBuildScriptModel $CONFIG_ALL_OPTIONS | Out-Host
                 }
             }
