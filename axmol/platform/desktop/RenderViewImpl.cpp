@@ -748,6 +748,9 @@ bool RenderViewImpl::initWithRect(std::string_view viewName,
         CHECK_GL_ERROR_DEBUG();
     }
 #endif
+
+    setIMEKeyboardState(false);
+
     return true;
 }
 
@@ -835,7 +838,50 @@ void RenderViewImpl::pollEvents()
     glfwPollEvents();
 }
 
-void RenderViewImpl::setIMEKeyboardState(bool /*bOpen*/) {}
+void RenderViewImpl::setIMEKeyboardState(bool bOpen)
+{
+#if defined(_WIN32)
+    // On Windows, some IME implementations (e.g. WeChat IME) can cause
+    // severe frame rate drops when continuously composing text in Chinese.
+    // To mitigate this, we explicitly control the IME open status:
+    // - When bOpen is true, we re-associate the input context and enable IME.
+    // - When bOpen is false, we disable IME via ImmSetOpenStatus(FALSE).
+    // Note: we avoid ImmAssociateContext(hwnd, NULL) because that would
+    // completely detach the IME context and prevent Chinese input entirely.
+    HWND hwnd = static_cast<HWND>(getNativeWindow());
+    if (bOpen)
+    {
+        HIMC hIMC = ImmGetContext(hwnd);
+        if (!hIMC)
+        {
+            hIMC = ImmCreateContext();
+            if (!hIMC)
+            {
+                AXLOGE("ImmCreateContext failed, ec: {}", GetLastError());
+                return;
+            }
+        }
+        ImmAssociateContext(hwnd, hIMC);
+
+        COMPOSITIONFORM cf;
+        cf.dwStyle        = CFS_POINT;
+        cf.ptCurrentPos.x = _mouseX;
+        cf.ptCurrentPos.y = _mouseY;
+        ImmSetCompositionWindow(hIMC, &cf);
+
+        ImmReleaseContext(hwnd, hIMC);
+        ImmSetOpenStatus(hIMC, TRUE);
+    }
+    else
+    {
+        ImmAssociateContext(hwnd, NULL);
+    }
+#else
+    // On non-Windows platforms (Linux, macOS, WASM), IME handling is
+    // managed by the system or browser. This API is currently a no-op.
+    AX_UNUSED_PARAM(bOpen);
+#endif
+}
 
 #if AX_ICON_SET_SUPPORT
 void RenderViewImpl::setIcon(std::string_view filename) const
