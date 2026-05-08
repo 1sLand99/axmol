@@ -436,6 +436,7 @@ public:
      *
      * @note This is the preferred high-level API for the common background-work-then-main-thread-callback pattern.
      *       Use JobSystem::enqueue() directly for low-level jobs that do not need Director or Scheduler semantics.
+     * @since axmol-3.0.0
      */
     JobHandle runAsync(std::function<void()> task, std::function<void()> done = nullptr);
 
