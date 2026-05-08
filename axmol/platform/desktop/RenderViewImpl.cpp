@@ -105,6 +105,10 @@ The RenderViewImpl for win32,linux,macos,wasm
 #    include "axmol/base/Scheduler.h"
 #endif
 
+#if defined(_WIN32)
+#    pragma comment(lib, "imm32.lib")
+#endif
+
 namespace ax
 {
 
