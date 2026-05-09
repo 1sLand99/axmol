@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copy from: https://github.com/androidx/media/blob/release/libraries/exoplayer/src/main/java/androidx/media3/exoplayer/video/MediaCodecVideoRenderer.java
+ * Copy from: https://github.com/androidx/media/blob/release/libraries/exoplayer/src/main/java/androidx/media3/exoplayer/video/ByteBufferVideoRenderer.java
  * and modified to works on ByteBuffer mode for retrieve video/raw NV12 data
  * patch based on AndroidX Media3 1.2.1, but also works on 1.1.0+
  */
@@ -126,13 +126,11 @@ class ClockUtils {
  * </ul>
  */
 @UnstableApi
-public class MediaCodecVideoRenderer extends MediaCodecRenderer {
+public class ByteBufferVideoRenderer extends MediaCodecRenderer {
   // region ByteBufferMode
   public interface VideoFrameProcessor {
     void processVideoFrame(MediaCodecAdapter codec, int index, long presentationTimeUs);
   }
-
-
 
     /**
    * The first frame was not rendered yet, and is only allowed to be rendered if the renderer is
@@ -152,7 +150,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public static final int DESIRED_PIXEL_FORMAT = CodecCapabilities.COLOR_FormatYUV420SemiPlanar; // desired pixel format: NV12
   // #endregion ByteBufferMode
 
-  private static final String TAG = "MediaCodecVideoRenderer";
+  private static final String TAG = "ByteBufferVideoRenderer";
   private static final String KEY_CROP_LEFT = "crop-left";
   private static final String KEY_CROP_RIGHT = "crop-right";
   private static final String KEY_CROP_BOTTOM = "crop-bottom";
@@ -218,7 +216,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 //   * @param context A context.
 //   * @param mediaCodecSelector A decoder selector.
 //   */
-//  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
+//  public ByteBufferVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
 //    this(context, mediaCodecSelector, 0);
 //  }
 
@@ -228,7 +226,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public MediaCodecVideoRenderer(
+  public ByteBufferVideoRenderer(
       Context context, MediaCodecSelector mediaCodecSelector, long allowedJoiningTimeMs) {
     this(
         context,
@@ -250,7 +248,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoRenderer(
+  public ByteBufferVideoRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs,
@@ -283,7 +281,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoRenderer(
+  public ByteBufferVideoRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs,
@@ -319,7 +317,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoRenderer(
+  public ByteBufferVideoRenderer(
       Context context,
       MediaCodecAdapter.Factory codecAdapterFactory,
       MediaCodecSelector mediaCodecSelector,
@@ -361,7 +359,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
    *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
    */
-  public MediaCodecVideoRenderer(
+  public ByteBufferVideoRenderer(
       Context context,
       MediaCodecAdapter.Factory codecAdapterFactory,
       MediaCodecSelector mediaCodecSelector,
