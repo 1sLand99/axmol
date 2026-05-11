@@ -630,8 +630,6 @@ void FastTMXLayer::updateTotalQuads()
         Vec2 tileSize;
         Vec2 tileOffset;
         Vec2 texSize;
-        float ptx;
-        float pty;
         Color32 color;
     };
     std::vector<BatchCache> batchCache(_batches.size());
@@ -649,11 +647,7 @@ void FastTMXLayer::updateTotalQuads()
             c.b           = static_cast<uint8_t>(c.b * a);
         }
         batchCache[i] = {AX_SIZE_PIXELS_TO_POINTS(ts->_tileSize),
-                         Vec2(ts->_tileOffset.x / csf, -ts->_tileOffset.y / csf),
-                         ts->_imageSize,
-                         1.0f / ts->_imageSize.width,
-                         1.0f / ts->_imageSize.height,
-                         c};
+                         Vec2(ts->_tileOffset.x / csf, -ts->_tileOffset.y / csf), ts->_imageSize, c};
     }
 
     // Cache the last resolved batch index and its GID range to skip re-scanning for
@@ -754,10 +748,10 @@ void FastTMXLayer::updateTotalQuads()
             const float ubottom = tileTexture.origin.y / bc.texSize.height;
             const float utop    = ubottom + tileTexture.size.height / bc.texSize.height;
 
-            quad.bl.texCoord = {uleft + bc.ptx, ubottom + bc.pty};
-            quad.br.texCoord = {uright - bc.ptx, ubottom + bc.pty};
-            quad.tl.texCoord = {uleft + bc.ptx, utop - bc.pty};
-            quad.tr.texCoord = {uright - bc.ptx, utop - bc.pty};
+            quad.bl.texCoord = {uleft, ubottom};
+            quad.br.texCoord = {uright, ubottom};
+            quad.tl.texCoord = {uleft, utop};
+            quad.tr.texCoord = {uright, utop};
 
             quad.bl.color = quad.br.color = quad.tl.color = quad.tr.color = bc.color;
 
