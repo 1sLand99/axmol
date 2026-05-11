@@ -536,9 +536,6 @@ class AxmolUtils {
         def androidProjDir = project.projectDir.toString().replaceAll("\\\\", "/")
         def ninjaPath = buildProfiles['ninjaPath'].replaceAll("\\\\", "/")
         options.add('"-DCMAKE_FIND_ROOT_PATH="')
-        if (!isInsideAndroidStudio()) {
-            options.add("\"-DCMAKE_MAKE_PROGRAM=${ninjaPath}\"")
-        }
         options.add('"-DANDROID_STL=c++_shared"')
         options.add('"-DANDROID_TOOLCHAIN=clang"')
         options.add('"-DANDROID_ARM_NEON=TRUE"')
