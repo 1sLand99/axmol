@@ -62,6 +62,10 @@
 #define LIFETIMEBOUND
 #endif
 
+// Axmol spec: The attribute is non-standard and may not provide functional benefit here, 
+// so disabling it avoids compatibility issues without affecting behavior.
+#define NONBLOCKING
+
 namespace al {
 
 template<typename T>
