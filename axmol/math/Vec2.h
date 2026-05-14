@@ -139,12 +139,12 @@ public:
     /**
      * Adds the elements of the specified vector to this one.
      *
-     * @param v The vector to add.
+     * @param val The vector to add.
      */
-    void add(const Vec2& v)
+    void add(const Vec2& val)
     {
-        x += v.x;
-        y += v.y;
+        x += val.x;
+        y += val.y;
     }
 
     /**
@@ -167,53 +167,53 @@ public:
     /**
      * Clamps the specified vector within the specified range and returns it in dst.
      *
-     * @param v The vector to clamp.
+     * @param val The vector to clamp.
      * @param min The minimum value.
      * @param max The maximum value.
      * @param dst A vector to store the result in.
      */
-    static void clamp(const Vec2& v, const Vec2& min, const Vec2& max, Vec2* dst);
+    static void clamp(const Vec2& val, const Vec2& min, const Vec2& max, Vec2* dst);
 
     /**
-     * Returns the distance between this vector and v.
+     * Returns the distance between this vector and val.
      *
-     * @param v The other vector.
+     * @param val The other vector.
      *
-     * @return The distance between this vector and v.
+     * @return The distance between this vector and val.
      *
      * @see distanceSquared
      */
-    float distance(const Vec2& v) const;
+    float distance(const Vec2& val) const;
 
     /**
-     * Returns the squared distance between this vector and v.
+     * Returns the squared distance between this vector and val.
      *
      * When it is not necessary to get the exact distance between
      * two vectors (for example, when simply comparing the
      * distance between different vectors), it is advised to use
      * this method instead of distance.
      *
-     * @param v The other vector.
+     * @param val The other vector.
      *
-     * @return The squared distance between this vector and v.
+     * @return The squared distance between this vector and val.
      *
      * @see distance
      */
-    float distanceSquared(const Vec2& v) const
+    float distanceSquared(const Vec2& val) const
     {
-        float dx = v.x - x;
-        float dy = v.y - y;
+        float dx = val.x - x;
+        float dy = val.y - y;
         return (dx * dx + dy * dy);
     }
 
     /**
      * Returns the dot product of this vector and the specified vector.
      *
-     * @param v The vector to compute the dot product with.
+     * @param val The vector to compute the dot product with.
      *
      * @return The dot product.
      */
-    float dot(const Vec2& v) const { return (x * v.x + y * v.y); }
+    float dot(const Vec2& val) const { return (x * val.x + y * val.y); }
 
     /**
      * Returns the dot product between the specified vectors.
@@ -338,12 +338,12 @@ public:
     /**
      * Sets the elements of this vector to those in the specified vector.
      *
-     * @param v The vector to copy.
+     * @param val The vector to copy.
      */
-    constexpr void set(const Vec2& v)
+    constexpr void set(const Vec2& val)
     {
-        this->x = v.x;
-        this->y = v.y;
+        this->x = val.x;
+        this->y = val.y;
     }
 
     /**
@@ -364,15 +364,15 @@ public:
     void setZero() { x = y = 0.0f; }
 
     /**
-     * Subtracts this vector and the specified vector as (this - v)
+     * Subtracts this vector and the specified vector as (this - val)
      * and stores the result in this vector.
      *
-     * @param v The vector to subtract.
+     * @param val The vector to subtract.
      */
-    void subtract(const Vec2& v)
+    void subtract(const Vec2& val)
     {
-        x -= v.x;
-        y -= v.y;
+        x -= val.x;
+        y -= val.y;
     }
 
     /**
@@ -409,25 +409,25 @@ public:
      *
      * Note: this does not modify this vector.
      *
-     * @param v The vector to add.
+     * @param val The vector to add.
      * @return The vector sum.
      */
-    Vec2 operator+(const Vec2& v) const
+    Vec2 operator+(const Vec2& val) const
     {
         Vec2 result(*this);
-        result.add(v);
+        result.add(val);
         return result;
     }
 
     /**
      * Adds the given vector to this vector.
      *
-     * @param v The vector to add.
+     * @param val The vector to add.
      * @return This vector, after the addition occurs.
      */
-    Vec2& operator+=(const Vec2& v)
+    Vec2& operator+=(const Vec2& val)
     {
-        add(v);
+        add(val);
         return *this;
     }
 
@@ -436,25 +436,25 @@ public:
      *
      * Note: this does not modify this vector.
      *
-     * @param v The vector to add.
+     * @param val The vector to subtract.
      * @return The vector sum.
      */
-    Vec2 operator-(const Vec2& v) const
+    Vec2 operator-(const Vec2& val) const
     {
         Vec2 result(*this);
-        result.subtract(v);
+        result.subtract(val);
         return result;
     }
 
     /**
      * Subtracts the given vector from this vector.
      *
-     * @param v The vector to subtract.
+     * @param val The vector to subtract.
      * @return This vector, after the subtraction occurs.
      */
-    Vec2& operator-=(const Vec2& v)
+    Vec2& operator-=(const Vec2& val)
     {
-        subtract(v);
+        subtract(val);
         return *this;
     }
 
@@ -512,52 +512,52 @@ public:
     /**
      * Determines if this vector is less than the given vector.
      *
-     * @param v The vector to compare against.
+     * @param val The vector to compare against.
      *
      * @return True if this vector is less than the given vector, false otherwise.
      */
-    bool operator<(const Vec2& v) const
+    bool operator<(const Vec2& val) const
     {
-        if (x == v.x)
+        if (x == val.x)
         {
-            return y < v.y;
+            return y < val.y;
         }
-        return x < v.x;
+        return x < val.x;
     }
 
     /**
      * Determines if this vector is greater than the given vector.
      *
-     * @param v The vector to compare against.
+     * @param val The vector to compare against.
      *
      * @return True if this vector is greater than the given vector, false otherwise.
      */
-    bool operator>(const Vec2& v) const
+    bool operator>(const Vec2& val) const
     {
-        if (x == v.x)
+        if (x == val.x)
         {
-            return y > v.y;
+            return y > val.y;
         }
-        return x > v.x;
+        return x > val.x;
     }
 
     /**
      * Determines if this vector is equal to the given vector.
      *
-     * @param v The vector to compare against.
+     * @param val The vector to compare against.
      *
      * @return True if this vector is equal to the given vector, false otherwise.
      */
-    bool operator==(const Vec2& v) const { return x == v.x && y == v.y; }
+    bool operator==(const Vec2& val) const { return x == val.x && y == val.y; }
 
     /**
      * Determines if this vector is not equal to the given vector.
      *
-     * @param v The vector to compare against.
+     * @param val The vector to compare against.
      *
      * @return True if this vector is not equal to the given vector, false otherwise.
      */
-    bool operator!=(const Vec2& v) const { return x != v.x || y != v.y; }
+    bool operator!=(const Vec2& val) const { return x != val.x || y != val.y; }
 
     // code added compatible for Point
 public:
@@ -814,12 +814,12 @@ public:
  * Calculates the scalar product of the given vector with the given value.
  *
  * @param x The value to scale by.
- * @param v The vector to scale.
+ * @param val The vector to scale.
  * @return The scaled vector.
  */
-inline Vec2 operator*(float x, const Vec2& v)
+inline Vec2 operator*(float x, const Vec2& val)
 {
-    Vec2 result(v);
+    Vec2 result(val);
     result.scale(x);
     return result;
 }

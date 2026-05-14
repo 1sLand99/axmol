@@ -33,15 +33,62 @@
 #include "extensions/axmol-ext.h"
 #include "axmol/rhi/DriverContext.h"
 #include "axmol/tlx/charconv.hpp"
+#include "axmol/platform/CommandLineArgs.h"
 #include <system_error>
 
 using namespace ax;
 
 AppDelegate::AppDelegate() : _testController(nullptr) {}
 
+static DriverPreference parseDriverPreference(std::span<const std::string_view> args)
+{
+    for (int i = 1; i < args.size(); ++i)
+    {
+        std::string_view arg = args[i];
+        if (arg.starts_with("--force-"))
+        {
+            std::string_view backend = arg.substr(8);
+            if (backend == "opengl" || backend == "gles")
+                return DriverPreference::OpenGL;
+            if (backend == "d3d11")
+                return DriverPreference::D3D11;
+            if (backend == "d3d12")
+                return DriverPreference::D3D12;
+            if (backend == "vulkan")
+                return DriverPreference::Vulkan;
+            if (backend == "metal")
+                return DriverPreference::Metal;
+        }
+    }
+    return DriverPreference::Auto;
+}
+
 AppDelegate::~AppDelegate()
 {
     AXLOGI("AppDelegate::~AppDelegate");
+}
+
+#if AX_TARGET_PLATFORM == AX_PLATFORM_WIN32 && defined(_UNICODE) && !defined(_CONSOLE)
+int AppDelegate::launch(int argc, wchar_t** argv)
+{
+    CommandLineArgs args;
+    args.buildFromWargv(argc, argv);
+    return launch(args);
+}
+#else
+int AppDelegate::launch(int argc, char** argv)
+{
+    CommandLineArgs args;
+    args.buildViewsFromArgv(argc, argv);
+    return launch(args);
+}
+#endif
+
+int AppDelegate::launch(const ax::CommandLineArgs& args)
+{
+    _driverPreference = parseDriverPreference(args.views());
+
+    return run();
 }
 
 // if you want a different context, modify the value of contextAttrs
@@ -59,6 +106,8 @@ void AppDelegate::initContextAttrs()
     // V-Sync is enabled by default since axmol 2.2.
     // Uncomment to disable V-Sync and unlock FPS.
     // contextAttrs.vsync = false;
+
+    contextAttrs.driverPreference = _driverPreference;
 
     // Enable high-DPI scaling support (non-win32 platforms only)
     // Note: on win32, cpp-tests keep the default render mode to ensure consistent performance benchmarks
