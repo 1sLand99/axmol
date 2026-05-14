@@ -88,7 +88,17 @@ Rect TMXTilesetInfo::getRectForGID(uint32_t gid)
     // max_x = (int)((_imageSize.width - _margin*2 + _spacing) / (_tileSize.width + _spacing));
     // but in editor "Tiled", _margin variable only effect the left side
     // for compatible with "Tiled", change the max_x calculation
+    if ((_tileSize.width + _spacing) == 0)
+    {
+        AXLOGE("TMXTilesetInfo::getRectForGID - invalid tile size or spacing (width + spacing == 0)");
+        return rect;
+    }
     int max_x = (int)((_imageSize.width - _margin + _spacing) / (_tileSize.width + _spacing));
+    if (max_x == 0)
+    {
+        AXLOGE("TMXTilesetInfo::getRectForGID - invalid tileset layout (calculated column count == 0)");
+        return rect;
+    }
 
     rect.origin.x = (gid % max_x) * (_tileSize.width + _spacing) + _margin;
     rect.origin.y = (gid / max_x) * (_tileSize.height + _spacing) + _margin;
