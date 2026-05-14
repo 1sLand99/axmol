@@ -78,6 +78,7 @@ PhysicsDemo::PhysicsDemo() : _spriteTexture(nullptr), _ball(nullptr), _debugDraw
 bool PhysicsDemo::init()
 {
     TestCase::init();
+    setFixedUpdateEnabled(false);
     return initWithPhysics();
 }
 
@@ -348,7 +349,6 @@ void PhysicsDemoLogoSmash::onEnter()
                            Color32::GREEN, Color32(0, 178, 255), Color32(255, 174, 201)};
 
     _physicsWorld2D->setGravity(Vec2(0.0f, 0.0f));
-    _physicsWorld2D->setUpdateRate(1);
 
     _ball = SpriteBatchNode::create(
         "Images/ball.png", LOGO_WIDTH_COLORED * LOGO_HEIGHT_COLORED + LOGO_WIDTH_COLORED + LOGO_HEIGHT_COLORED);
@@ -1913,17 +1913,8 @@ void PhysicsFixedUpdate::updateStart(float /*delta*/)
 {
     addBall();
 
-    _physicsWorld2D->setFixedUpdateRate(180);
-}
-
-void PhysicsFixedUpdate::update(float /*delta*/)
-{
-
-    // use fixed time and calculate 3 times per frame makes physics simulate more precisely.
-    for (int i = 0; i < 3; ++i)
-    {
-        _physicsWorld2D->step(1 / 180.0f);
-    }
+    setFixedUpdateEnabled(true);
+    setFixedDeltaTime(1 / 180.0f);
 }
 
 std::string PhysicsFixedUpdate::title() const
@@ -2075,6 +2066,8 @@ void PhysicsDemoPyramidStackFixedUpdate::onEnter()
 {
     PhysicsDemo::onEnter();
 
+    setFixedUpdateEnabled(true);
+
     auto touchListener          = EventListenerTouchOneByOne::create();
     touchListener->onTouchBegan = AX_CALLBACK_2(PhysicsDemoPyramidStackFixedUpdate::onTouchBegan, this);
     touchListener->onTouchMoved = AX_CALLBACK_2(PhysicsDemoPyramidStackFixedUpdate::onTouchMoved, this);
@@ -2097,7 +2090,6 @@ void PhysicsDemoPyramidStackFixedUpdate::onEnter()
 
     _delayTime = 0;
     _isAddBall = false;
-    _physicsWorld2D->setFixedUpdateRate(50);
 
     int count = 1;
     for (int i = 0; i < 14; i++)
@@ -2122,6 +2114,8 @@ std::string PhysicsDemoPyramidStackFixedUpdate::title() const
 
 void PhysicsDemoPyramidStackFixedUpdate::fixedUpdate(float delta)
 {
+    Scene::fixedUpdate(delta);
+
     _delayTime += delta;
     if (_delayTime >= 3.0f && !_isAddBall)
     {

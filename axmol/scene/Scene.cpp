@@ -59,6 +59,10 @@ Scene::Scene()
     _ignoreAnchorPointForPosition = true;
     setAnchorPoint(Vec2(0.5f, 0.5f));
 
+    // Set accumulator to fixedDeltaTime so the next tick will immediately run at least one fixedUpdate,
+    // avoiding a stall after changing step size.
+    _fixedAccumulator = _fixedDeltaTime;
+
     Camera::_visitingCamera = nullptr;
 }
 
@@ -361,19 +365,69 @@ bool Scene::initPhysicsWorld()
 
 #endif
 
+void Scene::setFixedDeltaTime(float fixedStep)
+{
+    fixedStep = std::clamp<float>(fixedStep, 0.0001F, 10.0F);
+
+    _fixedDeltaTime = fixedStep;
+
+    // Reset accumulator to fixedDeltaTime so the next tick will immediately run at least one fixedUpdate,
+    // avoiding a stall after changing step size.
+    _fixedAccumulator = _fixedDeltaTime;
+}
+
+void Scene::tick(float deltaTime)
+{
+    // apply time scale and clamp to avoid huge dt spikes
+    deltaTime = (std::min)(deltaTime * _timeScale, _maxDeltaTime);
+
+    if (_fixedUpdateEnabled)
+    {
+        // accumulate time
+        _fixedAccumulator += deltaTime;
+
+        int steps = 0;
+        while (_fixedAccumulator >= _fixedDeltaTime && steps < _maxFixedStepsPerFrame)
+        {
+            fixedUpdate(_fixedDeltaTime);
+
+            _fixedAccumulator -= _fixedDeltaTime;
+            ++steps;
+        }
+
+        // spiral of death protection: if we hit max steps, drop remaining accumulator
+        if (steps == _maxFixedStepsPerFrame)
+            _fixedAccumulator = 0.0f;
+
+        // compute interpolation alpha for rendering (0..1)
+        _physicsInterpolationAlpha = static_cast<float>(_fixedAccumulator) / _fixedDeltaTime;
+    }
+    else
+    {
+#if (defined(AX_ENABLE_PHYSICS_2D) || defined(AX_ENABLE_PHYSICS_3D) || defined(AX_ENABLE_NAVMESH))
+        stepPhysicsAndNavigation(deltaTime);
+#endif
+    }
+}
+
+void Scene::fixedUpdate(float delta)
+{
+#if (defined(AX_ENABLE_PHYSICS_2D) || defined(AX_ENABLE_PHYSICS_3D) || defined(AX_ENABLE_NAVMESH))
+    stepPhysicsAndNavigation(delta);
+#endif
+}
+
 #if (defined(AX_ENABLE_PHYSICS_2D) || defined(AX_ENABLE_PHYSICS_3D) || defined(AX_ENABLE_NAVMESH))
 void Scene::stepPhysicsAndNavigation(float deltaTime)
 {
 #    if defined(AX_ENABLE_PHYSICS_2D)
     if (_physicsWorld2D && _physicsWorld2D->isAutoStep())
-        _physicsWorld2D->update(deltaTime);
+        _physicsWorld2D->stepSimulation(deltaTime);
 #    endif
 
 #    if defined(AX_ENABLE_PHYSICS_3D)
-    if (_physicsWorld3D)
-    {
-        _physicsWorld3D->stepSimulate(deltaTime);
-    }
+    if (_physicsWorld3D && _physicsWorld3D->isAutoStep())
+        _physicsWorld3D->stepSimulation(deltaTime);
 #    endif
 #    if defined(AX_ENABLE_NAVMESH)
     if (_navMesh)
