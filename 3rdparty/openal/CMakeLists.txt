@@ -364,8 +364,7 @@ if(MSVC)
     # C4373 - virtual function overrides 'base_function', previous versions of
     #         the compiler did not override when parameters only differed by
     #         const/volatile qualifiers
-    # Axmol spec: Remove /W4 to avoid produces excessive warnings outside Axmol's codebase.
-    list(APPEND C_FLAGS /wd4127 /wd4324 /wd4373 /utf-8 $<$<COMPILE_LANGUAGE:CXX>:/EHsc>)
+    list(APPEND C_FLAGS /W4 /wd4127 /wd4324 /wd4373 /utf-8 $<$<COMPILE_LANGUAGE:CXX>:/EHsc>)
 
     if(NOT DXSDK_DIR)
         string(REGEX REPLACE "\\\\" "/" DXSDK_DIR "$ENV{DXSDK_DIR}")
@@ -1651,7 +1650,7 @@ endif()
 target_include_directories(alsoft.common
     PUBLIC ${OpenAL_BINARY_DIR} ${OpenAL_SOURCE_DIR}/common ${OpenAL_SOURCE_DIR}/gsl/include)
 target_compile_definitions(alsoft.common PUBLIC ${CPP_DEFS})
-target_compile_options(alsoft.common PUBLIC ${C_FLAGS})
+target_compile_options(alsoft.common PRIVATE ${C_FLAGS})
 target_link_libraries(alsoft.common PUBLIC Threads::Threads ${LINKER_FLAGS} fmt::fmt)
 set_target_properties(alsoft.common PROPERTIES ${ALSOFT_STD_VERSION_PROPS}
     POSITION_INDEPENDENT_CODE TRUE)
