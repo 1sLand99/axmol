@@ -398,8 +398,13 @@ else {
                     'libglvnd'
                 )
 
-                if ($(pacman -Si webkit2gtk -q 2>$null)) {
+                if ($(pacman -Si webkit2gtk -q 2>$null)) 
+                {
                     $DEPENDS += 'webkit2gtk'
+                }
+                else
+                {
+                    $DEPENDS += 'webkit2gtk-4.1'
                 }
 
                 sudo pacman -S --needed --noconfirm @DEPENDS
