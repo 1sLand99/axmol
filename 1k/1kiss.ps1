@@ -624,14 +624,19 @@ function validate_cmd($source) {
     return (validate_cmd_fs $source $source)
 }
 
+function info_cmd($cmd) {
+    return Get-Command $cmd -ErrorAction SilentlyContinue
+}
+
 function find_cmd($cmd) {
-    $cmd_info = (Get-Command $cmd -ErrorAction SilentlyContinue)
+    $cmd_info = (info_cmd $cmd)
     if ($cmd_info -and (validate_cmd $cmd_info.Source)) {
         return $cmd_info
     }
 
     return $null
 }
+
 function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params = @('--version'), $silent = $false, $usefv = $false) {
     if ($path) {
         $storedPATH = $env:PATH
@@ -1167,7 +1172,7 @@ function setup_nasm() {
             $1k.addpath($nasm_bin)
         }
         elseif ($IsLinux) {
-            if (Get-Command dpkg -ErrorAction SilentlyContinue) {
+            if (info_cmd dpkg) {
                 sudo apt-get install -y nasm
             }
         }
@@ -1212,13 +1217,13 @@ function setup_jdk() {
 
 function setup_unzip() {
     if ($IsWin) { return }
-    $unzip_cmd_info = Get-Command 'unzip' -ErrorAction SilentlyContinue
+    $unzip_cmd_info = info_cmd 'unzip'
     if (!$unzip_cmd_info) {
         if ($IsLinux) {
-            if (Get-Command dpkg -ErrorAction SilentlyContinue) {
+            if (info_cmd dpkg) {
                 sudo apt-get install -y unzip
             }
-            elseif (Get-Command pacman -ErrorAction SilentlyContinue) {
+            elseif (info_cmd pacman) {
                 sudo pacman -S --needed --noconfirm unzip
             }
             else {
@@ -1228,7 +1233,7 @@ function setup_unzip() {
         elseif ($IsMacOS) {
             brew install unzip
         }
-        $unzip_cmd_info = Get-Command 'unzip' -ErrorAction SilentlyContinue
+        $unzip_cmd_info = info_cmd 'unzip'
         if (!$unzip_cmd_info) {
             throw "setup unzip fail"
         }
@@ -1237,7 +1242,7 @@ function setup_unzip() {
 
 function setup_7z() {
     # ensure 7z_prog
-    $7z_cmd_info = Get-Command '7z' -ErrorAction SilentlyContinue
+    $7z_cmd_info = info_cmd '7z'
     if (!$7z_cmd_info) {
         if ($IsWin) {
             $7z_ver = '2600'
@@ -1250,13 +1255,13 @@ function setup_7z() {
             $1k.addpath($7z_bin)
         }
         elseif ($IsLinux) {
-            if ($(Get-Command dpkg -ErrorAction SilentlyContinue)) { sudo apt-get install -y p7zip-full }
+            if ($(info_cmd dpkg)) { sudo apt-get install -y p7zip-full }
         }
         elseif ($IsMacOS) {
             brew install p7zip
         }
 
-        $7z_cmd_info = Get-Command '7z' -ErrorAction SilentlyContinue
+        $7z_cmd_info = info_cmd '7z'
         if (!$7z_cmd_info) {
             throw "setup 7z fail"
         }
@@ -1489,7 +1494,7 @@ function setup_emsdk() {
     if (!$emcc_prog) {
         # no suitable emcc toolchain found, use official emsdk to setup
         $1k.println('Not found emcc toolchain in $env:PATH, setup emsdk ...')
-        $emsdk_cmd = (Get-Command emsdk -ErrorAction SilentlyContinue)
+        $emsdk_cmd = (info_cmd emsdk)
         if (!$emsdk_cmd) {
             $emsdk_root = Join-Path $install_prefix 'emsdk'
             if (!$1k.isdir($emsdk_root)) {
@@ -1504,7 +1509,7 @@ function setup_emsdk() {
             $emsdk_root = Split-Path $emsdk_cmd.Source -Parent
         }
 
-        $emcmake = (Get-Command emcmake -ErrorAction SilentlyContinue)
+        $emcmake = (info_cmd emcmake)
         if (!$emcmake) {
             Push-Location $emsdk_root
             ./emsdk install $emcc_ver
@@ -2118,7 +2123,7 @@ if (!$setupOnly) {
         $1k.println("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
         if ($Global:is_android -and $is_gradlew) {
-            $build_tool = (Get-Command $options.xt).Source
+            $build_tool = (info_cmd $options.xt).Source
             $build_tool_dir = Split-Path $build_tool -Parent
             Push-Location $build_tool_dir
             $build_task = @('assemble', 'bundle')[$options.aab]
