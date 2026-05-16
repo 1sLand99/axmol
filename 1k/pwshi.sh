@@ -64,10 +64,10 @@ if [ $HOST_OS = 'Darwin' ] ; then
     sudo installer -pkg "$pwsh_pkg_out" -target /
 elif [ $HOST_OS = 'Linux' ] ; then
     distro=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
+    sudo_cmd=$(command -v sudo)
     if command -v dpkg > /dev/null; then  # Linux distro: deb (ubuntu)
         check_pwsh $pwsh_min_ver $pwsh_ver
 
-        sudo_cmd=$(which sudo)
         if ! command -v curl >/dev/null 2>&1; then
             $sudo_cmd apt-get update
             $sudo_cmd apt-get install -y curl
@@ -150,14 +150,6 @@ elif [ $HOST_OS = 'Linux' ] ; then
         # install powershell
         $sudo_cmd dpkg -i "$pwsh_pkg_out"
         $sudo_cmd apt install -f --allow-unauthenticated --yes powershell
-    elif command -v pacman > /dev/null; then # Linux distro: Arch
-        # refer: https://ephos.github.io/posts/2018-9-17-Pwsh-ArchLinux
-        # available pwsh version, refer to: https://aur.archlinux.org/packages/powershell-bin
-        check_pwsh $pwsh_min_ver
-        git clone https://aur.archlinux.org/powershell-bin.git $cacheDir/powershell-bin
-        cd $cacheDir/powershell-bin
-        makepkg -si --needed --noconfirm
-        cd -
     else
         # install generic edition from tar package for other linux distro manually
         check_pwsh $pwsh_min_ver $pwsh_ver
@@ -173,7 +165,7 @@ elif [ $HOST_OS = 'Linux' ] ; then
             tar xvf $pwsh_pkg_out -C "$pwsh_inst_dir"
         fi
         chmod +x "$pwsh_path"
-        sudo ln -s "$pwsh_path" /usr/local/bin/pwsh
+        $sudo_cmd ln -s "$pwsh_path" /usr/local/bin/pwsh
     fi
 else
     echo "pwshi: Unsupported HOST OS: $HOST_OS"
