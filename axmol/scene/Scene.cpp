@@ -378,11 +378,11 @@ void Scene::setFixedDeltaTime(float fixedStep)
 
 void Scene::tick(float deltaTime)
 {
-    // apply time scale and clamp to avoid huge dt spikes
-    deltaTime = (std::min)(deltaTime * _timeScale, _maxDeltaTime);
-
     if (_fixedUpdateEnabled)
     {
+        // apply time scale and clamp to avoid huge dt spikes
+        deltaTime = (std::min)(deltaTime * _timeScale, _maxDeltaTime);
+
         // accumulate time
         _fixedAccumulator += deltaTime;
 
@@ -405,6 +405,8 @@ void Scene::tick(float deltaTime)
     else
     {
 #if (defined(AX_ENABLE_PHYSICS_2D) || defined(AX_ENABLE_PHYSICS_3D) || defined(AX_ENABLE_NAVMESH))
+        // apply time scale and clamp to avoid huge dt spikes
+        deltaTime = (std::min)(deltaTime * _timeScale, _maxDeltaTime);
         stepPhysicsAndNavigation(deltaTime);
 #endif
     }

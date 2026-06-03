@@ -35,6 +35,7 @@ THE SOFTWARE.
 namespace ax
 {
 
+class Director;
 class Camera;
 class BaseLight;
 class Renderer;
@@ -178,6 +179,10 @@ private:
     void onProjectionChanged(EventCustom* event);
 
 protected:
+    void tick(float delta);
+    virtual void fixedUpdate(float delta);
+
+    friend class Director;
     friend class Node;
     friend class ProtectedNode;
     friend class SpriteBatchNode;
@@ -240,9 +245,6 @@ public:
 
     bool initWithPhysics();
     bool initPhysicsWorld();
-
-    void tick(float delta);
-    virtual void fixedUpdate(float delta);
 
 protected:
 #    if defined(AX_ENABLE_PHYSICS_2D)
