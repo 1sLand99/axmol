@@ -416,6 +416,8 @@ void RenderTextureZbuffer::renderScreenShot()
 
     texture->end();
 
+    _director->getRenderer()->render();
+
     auto sprite = Sprite::createWithTexture(texture->getSprite()->getTexture());
 
     sprite->setPosition(Vec2(256, 256));
