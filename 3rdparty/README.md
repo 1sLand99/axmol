@@ -127,7 +127,7 @@
 
 - luajit
   - Upstream: https://github.com/LuaJIT/LuaJIT
-  - Version: 2.1-18b087c
+  - Version: 2.1-b925b3e
   - License: MIT
 
 - tolua
@@ -195,7 +195,7 @@
 
 ## OpenSSL
 - [![Upstream](https://img.shields.io/github/v/release/openssl/openssl?label=Upstream)](https://github.com/openssl/openssl)
-- Version: 3.0.20
+- Version: 3.0.21
 - License: Apache-2.0
 
 ## png
@@ -235,7 +235,7 @@
 
 ## simdjson
 - [![Upstream](https://img.shields.io/github/v/tag/simdjson/simdjson?label=Upstream)](https://github.com/simdjson/simdjson)
-- Version: 4.6.3
+- Version: 4.6.4
 - License: Apache-2.0
 
 ## stb (stb_image)
