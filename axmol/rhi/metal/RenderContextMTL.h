@@ -193,6 +193,8 @@ public:
 
     id<CAMetalDrawable> acquireDrawable();
 
+    id<MTLCommandBuffer> getCommandBuffer() const { return _currentCmdBuffer; }
+
 protected:
     /**
      * Read a block of pixels from the given texture
