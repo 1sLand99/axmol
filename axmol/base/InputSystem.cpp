@@ -552,18 +552,26 @@ void InputSystem::dispatchPointerEvent(InputPhase phase, Vec2 point, const Point
         event = findPointerEvent(state.id);
         if (!event)
         {
-            if (phase != InputPhase::PointerMove)
+            if (phase == InputPhase::PointerMove)
             {
-                AXLOGE("[InputSystem] Unexpected terminal phase [{}] without preceding Down stream.",
-                       static_cast<int>(phase));
+                if (state.type == PointerType::Touch)
+                {
+                    AXLOGW("[InputSystem] Isolated touch move discarded: missing preceding down (id={}).", state.id);
+                    return;
+                }
+
+                // Mouse hover / pen hover.
+                event = &_isolatedMoveEvent;
+            }
+            else
+            {
+                // Terminal event without active pointer stream.
+                // This can happen when the OS/window manager intercepts input, e.g.
+                // double-click title bar to maximize, system gestures, focus changes.
+                AXLOGD("[InputSystem] Orphan pointer terminal event discarded: phase={}, id={}, type={}.",
+                       static_cast<int>(phase), state.id, static_cast<int>(state.type));
                 return;
             }
-            if (state.type == PointerType::Touch)
-            {
-                AXLOGE("[InputSystem] Isolated touch move event discarded (missing down frame).");
-                return;
-            }
-            event = &_isolatedMoveEvent;
         }
     }
 
