@@ -1171,9 +1171,9 @@ void compress_block(
 	float lowest_correl;
 
 	TRACE_NODE(node0, "block");
-	trace_add_data("pos_x", blk.xpos);
-	trace_add_data("pos_y", blk.ypos);
-	trace_add_data("pos_z", blk.zpos);
+	trace_add_data("pos_x", blk.pos_x);
+	trace_add_data("pos_y", blk.pos_y);
+	trace_add_data("pos_z", blk.pos_z);
 
 	// Set stricter block targets for luminance data as we have more bits to play with
 	bool block_is_l = blk.is_luminance();
@@ -1284,7 +1284,7 @@ void compress_block(
 	// Only enable MODE0 fast path if enabled
 	// Never enable for 3D blocks as no "always" block modes are available
 	int start_trial = 1;
- 	if ((ctx.config.tune_search_mode0_enable >= TUNE_MIN_SEARCH_MODE0) && (bsd.zdim == 1))
+ 	if ((ctx.config.tune_search_mode0_enable >= TUNE_MIN_SEARCH_MODE0) && (bsd.dim_z == 1))
 	{
 		start_trial = 0;
 	}

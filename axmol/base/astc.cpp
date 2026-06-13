@@ -135,7 +135,7 @@ public:
         auto data = task->_in_texels;
         for (;;)
         {  // process the task
-            unsigned int count = 0;
+            size_t count = 0;
             unsigned int base  = decompress_pm.get_task_assignment(128, count);
 
             bool no_task_count = !count;
