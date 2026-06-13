@@ -13,7 +13,7 @@
 #include <Motion/CubismMotion.hpp>
 #include <Physics/CubismPhysics.hpp>
 #include <CubismDefaultParameterId.hpp>
-#include <Rendering/axmol/CubismRenderer_Cocos2dx.hpp>
+#include <Rendering/axmol/CubismRenderer_Axmol.hpp>
 #include <Utils/CubismString.hpp>
 #include <Id/CubismIdManager.hpp>
 #include "Motion/CubismMotionQueueEntry.hpp"
@@ -79,7 +79,7 @@ LAppModel::LAppModel()
     _clearColor[2] = 1.0f;
     _clearColor[3] = 0.0f;
 
-    _renderBuffer = new Csm::Rendering::CubismOffscreenFrame_Cocos2dx;
+    _renderBuffer = new Csm::Rendering::CubismOffscreenFrame_Axmol;
 }
 
 LAppModel::~LAppModel()
@@ -540,14 +540,14 @@ void LAppModel::DoDraw()
 {
     if (_model == NULL)return;
 
-    GetRenderer<Rendering::CubismRenderer_Cocos2dx>()->DrawModel();
+    GetRenderer<Rendering::CubismRenderer_Axmol>()->DrawModel();
 }
 
-void LAppModel::Draw(Csm::Rendering::CubismCommandBuffer_Cocos2dx* commandBuffer, CubismMatrix44& matrix)
+void LAppModel::Draw(Csm::Rendering::CubismCommandBuffer_Axmol* commandBuffer, CubismMatrix44& matrix)
 {
     if (_model == NULL)return;
 
-    Csm::Rendering::CubismRenderer_Cocos2dx::StartFrame(commandBuffer);
+    Csm::Rendering::CubismRenderer_Axmol::StartFrame(commandBuffer);
 
     //commandBuffer->PushCommandGroup();
 
@@ -559,7 +559,7 @@ void LAppModel::Draw(Csm::Rendering::CubismCommandBuffer_Cocos2dx* commandBuffer
 
     matrix.MultiplyByMatrix(_modelMatrix);
 
-    GetRenderer<Rendering::CubismRenderer_Cocos2dx>()->SetMvpMatrix(&matrix);
+    GetRenderer<Rendering::CubismRenderer_Axmol>()->SetMvpMatrix(&matrix);
 
     DoDraw();
 
@@ -652,10 +652,10 @@ void LAppModel::SetupTextures()
         _loadedTextures.PushBack(texture);
 
         //Cocos2d
-        GetRenderer<Rendering::CubismRenderer_Cocos2dx>()->BindTexture(modelTextureNumber, texture);
+        GetRenderer<Rendering::CubismRenderer_Axmol>()->BindTexture(modelTextureNumber, texture);
     }
 
-    GetRenderer<Rendering::CubismRenderer_Cocos2dx>()->IsPremultipliedAlpha(true);
+    GetRenderer<Rendering::CubismRenderer_Axmol>()->IsPremultipliedAlpha(true);
 
 }
 

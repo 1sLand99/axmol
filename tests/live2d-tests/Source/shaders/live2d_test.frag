@@ -5,7 +5,6 @@ precision mediump float;
 precision highp float;
 #endif
 
-layout(location = COLOR0) in vec4 v_color;
 layout(location = TEXCOORD0) in vec2 v_texCoord;
 
 layout(set = 1, binding = 0) uniform sampler2D u_tex0;

@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-#include "CubismRenderer_Cocos2dx.hpp"
+#include "CubismRenderer_Axmol.hpp"
 #include "Math/CubismMatrix44.hpp"
 #include "Type/csmVector.hpp"
 #include "Model/CubismModel.hpp"
@@ -22,14 +22,14 @@ using namespace ax;
 namespace Live2D { namespace Cubism { namespace Framework { namespace Rendering {
 
 /*********************************************************************************************************************
-*                                      CubismClippingManager_Cocos2dx
+*                                      CubismClippingManager_Axmol
 ********************************************************************************************************************/
 ///< ファイルスコープの変数宣言
 namespace {
 const csmInt32 ColorChannelCount = 4;   ///< 実験時に1チャンネルの場合は1、RGBだけの場合は3、アルファも含める場合は4
 }
 
-CubismClippingManager_Cocos2dx::CubismClippingManager_Cocos2dx() :
+CubismClippingManager_Axmol::CubismClippingManager_Axmol() :
                                                                    _currentFrameNo(0)
                                                                    , _clippingMaskBufferSize(256, 256)
 {
@@ -61,7 +61,7 @@ CubismClippingManager_Cocos2dx::CubismClippingManager_Cocos2dx() :
 
 }
 
-CubismClippingManager_Cocos2dx::~CubismClippingManager_Cocos2dx()
+CubismClippingManager_Axmol::~CubismClippingManager_Axmol()
 {
     for (csmUint32 i = 0; i < _clippingContextListForMask.GetSize(); i++)
     {
@@ -82,7 +82,7 @@ CubismClippingManager_Cocos2dx::~CubismClippingManager_Cocos2dx()
     }
 }
 
-void CubismClippingManager_Cocos2dx::Initialize(CubismModel& model, csmInt32 drawableCount, const csmInt32** drawableMasks, const csmInt32* drawableMaskCounts)
+void CubismClippingManager_Axmol::Initialize(CubismModel& model, csmInt32 drawableCount, const csmInt32** drawableMasks, const csmInt32* drawableMaskCounts)
 {
     //クリッピングマスクを使う描画オブジェクトを全て登録する
     //クリッピングマスクは、通常数個程度に限定して使うものとする
@@ -111,7 +111,7 @@ void CubismClippingManager_Cocos2dx::Initialize(CubismModel& model, csmInt32 dra
     }
 }
 
-CubismClippingContext* CubismClippingManager_Cocos2dx::FindSameClip(const csmInt32* drawableMasks, csmInt32 drawableMaskCounts) const
+CubismClippingContext* CubismClippingManager_Axmol::FindSameClip(const csmInt32* drawableMasks, csmInt32 drawableMaskCounts) const
 {
     // 作成済みClippingContextと一致するか確認
     for (csmUint32 i = 0; i < _clippingContextListForMask.GetSize(); i++)
@@ -142,7 +142,7 @@ CubismClippingContext* CubismClippingManager_Cocos2dx::FindSameClip(const csmInt
     return NULL; //見つからなかった
 }
 
-void CubismClippingManager_Cocos2dx::SetupClippingContext(CubismModel& model, CubismRenderer_Cocos2dx* renderer, rhi::Texture* lastColorBuffer, csmRectF lastViewport)
+void CubismClippingManager_Axmol::SetupClippingContext(CubismModel& model, CubismRenderer_Axmol* renderer, rhi::Texture* lastColorBuffer, csmRectF lastViewport)
 {
     _currentFrameNo++;
 
@@ -286,7 +286,7 @@ void CubismClippingManager_Cocos2dx::SetupClippingContext(CubismModel& model, Cu
                 for (csmInt32 i = 0; i < clipDrawCount; i++)
                 {
                     const csmInt32 clipDrawIndex = clipContext->_clippingIdList[i];
-                    CubismCommandBuffer_Cocos2dx::DrawCommandBuffer* drawCommandBufferData = clipContext->_clippingCommandBufferList->At(i);// [i];
+                    CubismCommandBuffer_Axmol::DrawCommandBuffer* drawCommandBufferData = clipContext->_clippingCommandBufferList->At(i);// [i];
 
 
                     // 頂点情報が更新されておらず、信頼性がない場合は描画をパスする
@@ -349,7 +349,7 @@ void CubismClippingManager_Cocos2dx::SetupClippingContext(CubismModel& model, Cu
     }
 }
 
-void CubismClippingManager_Cocos2dx::CalcClippedDrawTotalBounds(CubismModel& model, CubismClippingContext* clippingContext)
+void CubismClippingManager_Axmol::CalcClippedDrawTotalBounds(CubismModel& model, CubismClippingContext* clippingContext)
 {
     // 被クリッピングマスク（マスクされる描画オブジェクト）の全体の矩形
     csmFloat32 clippedDrawTotalMinX = FLT_MAX, clippedDrawTotalMinY = FLT_MAX;
@@ -410,7 +410,7 @@ void CubismClippingManager_Cocos2dx::CalcClippedDrawTotalBounds(CubismModel& mod
     }
 }
 
-void CubismClippingManager_Cocos2dx::SetupLayoutBounds(csmInt32 usingClipCount) const
+void CubismClippingManager_Axmol::SetupLayoutBounds(csmInt32 usingClipCount) const
 {
     if (usingClipCount <= 0)
     {// この場合は一つのマスクターゲットを毎回クリアして使用する
@@ -528,22 +528,22 @@ void CubismClippingManager_Cocos2dx::SetupLayoutBounds(csmInt32 usingClipCount) 
     }
 }
 
-CubismRenderer::CubismTextureColor* CubismClippingManager_Cocos2dx::GetChannelFlagAsColor(csmInt32 channelNo)
+CubismRenderer::CubismTextureColor* CubismClippingManager_Axmol::GetChannelFlagAsColor(csmInt32 channelNo)
 {
     return _channelColors[channelNo];
 }
 
-csmVector<CubismClippingContext*>* CubismClippingManager_Cocos2dx::GetClippingContextListForDraw()
+csmVector<CubismClippingContext*>* CubismClippingManager_Axmol::GetClippingContextListForDraw()
 {
     return &_clippingContextListForDraw;
 }
 
-void CubismClippingManager_Cocos2dx::SetClippingMaskBufferSize(csmFloat32 width, csmFloat32 height)
+void CubismClippingManager_Axmol::SetClippingMaskBufferSize(csmFloat32 width, csmFloat32 height)
 {
     _clippingMaskBufferSize = CubismVector2(width, height);
 }
 
-CubismVector2 CubismClippingManager_Cocos2dx::GetClippingMaskBufferSize() const
+CubismVector2 CubismClippingManager_Axmol::GetClippingMaskBufferSize() const
 {
     return _clippingMaskBufferSize;
 }
@@ -551,7 +551,7 @@ CubismVector2 CubismClippingManager_Cocos2dx::GetClippingMaskBufferSize() const
 /*********************************************************************************************************************
 *                                      CubismClippingContext
 ********************************************************************************************************************/
-CubismClippingContext::CubismClippingContext(CubismClippingManager_Cocos2dx* manager, CubismModel& model, const csmInt32* clippingDrawableIndices, csmInt32 clipCount)
+CubismClippingContext::CubismClippingContext(CubismClippingManager_Axmol* manager, CubismModel& model, const csmInt32* clippingDrawableIndices, csmInt32 clipCount)
 {
     _owner = manager;
 
@@ -567,19 +567,19 @@ CubismClippingContext::CubismClippingContext(CubismClippingManager_Cocos2dx* man
     _layoutBounds = CSM_NEW csmRectF();
 
     _clippedDrawableIndexList = CSM_NEW csmVector<csmInt32>();
-    _clippingCommandBufferList = CSM_NEW csmVector<CubismCommandBuffer_Cocos2dx::DrawCommandBuffer*>;
+    _clippingCommandBufferList = CSM_NEW csmVector<CubismCommandBuffer_Axmol::DrawCommandBuffer*>;
 
 
     for (csmUint32 i = 0; i < _clippingIdCount; ++i)
     {
         const csmInt32 clippingId = _clippingIdList[i];
-        CubismCommandBuffer_Cocos2dx::DrawCommandBuffer* drawCommandBuffer = NULL;
+        CubismCommandBuffer_Axmol::DrawCommandBuffer* drawCommandBuffer = NULL;
         const csmInt32 drawableVertexCount = model.GetDrawableVertexCount(clippingId);
         const csmInt32 drawableVertexIndexCount = model.GetDrawableVertexIndexCount(clippingId);
         const csmSizeInt vertexSize = sizeof(csmFloat32) * 2;
 
 
-        drawCommandBuffer = CSM_NEW CubismCommandBuffer_Cocos2dx::DrawCommandBuffer();
+        drawCommandBuffer = CSM_NEW CubismCommandBuffer_Axmol::DrawCommandBuffer();
         drawCommandBuffer->GetCommandDraw()->GetCommand()->setDrawType(ax::CustomCommand::DrawType::ELEMENT);
         drawCommandBuffer->GetCommandDraw()->GetCommand()->setPrimitiveType(ax::rhi::PrimitiveType::TRIANGLE);
         drawCommandBuffer->CreateVertexBuffer(vertexSize, drawableVertexCount * 2);      // Vertices + UVs
@@ -629,7 +629,7 @@ void CubismClippingContext::AddClippedDrawable(csmInt32 drawableIndex)
     _clippedDrawableIndexList->PushBack(drawableIndex);
 }
 
-CubismClippingManager_Cocos2dx* CubismClippingContext::GetClippingManager()
+CubismClippingManager_Axmol* CubismClippingContext::GetClippingManager()
 {
     return _owner;
 }
@@ -639,31 +639,44 @@ CubismClippingManager_Cocos2dx* CubismClippingContext::GetClippingManager()
 /*********************************************************************************************************************
 *                                      CubismDrawProfile_OpenGL
 ********************************************************************************************************************/
-void CubismRendererProfile_Cocos2dx::Save()
+void CubismRendererProfile_Axmol::Save()
 {
     //-- push state --
     _lastScissorTest = GetCocos2dRenderer()->getScissorTest();
     _lastStencilTest = GetCocos2dRenderer()->getStencilTest();
-    _lastDepthTest = GetCocos2dRenderer()->getDepthTest();
-    _lastCullFace = GetCocos2dRenderer()->getCullMode();
-    _lastWinding = GetCocos2dRenderer()->getWinding();
+    _lastDepthTest   = GetCocos2dRenderer()->getDepthTest();
+    _lastCullFace    = GetCocos2dRenderer()->getCullMode();
+    _lastWinding     = GetCocos2dRenderer()->getWinding();
 
-
-    // モデル描画直前のFBOとビューポートを保存
-    // _lastColorBuffer = GetCocos2dRenderer()->getRenderTargetAttachment(rhi::TargetBufferFlags::COLOR);
-    // _lastDepthBuffer      = GetCocos2dRenderer()->getRenderTargetAttachment(rhi::TargetBufferFlags::DEPTH);
-    // _lastStencilBuffer    = GetCocos2dRenderer()->getRenderTargetAttachment(rhi::TargetBufferFlags::STENCIL);
-    // _lastRenderTargetFlag = GetCocos2dRenderer()->getRenderTargetFlag();
-    // _lastColorBuffer  = nullptr; // unused
+    // Save render target and viewport.
     _lastRenderTarget = GetCocos2dRenderer()->getRenderTarget();
-	//_lastRenderTargetFlag = _lastRenderTarget->getTargetFlags();
-    _lastColorBuffer   = _lastRenderTarget->_color.size() > 0 ? _lastRenderTarget->_color[0].texture : nullptr;
-	_lastDepthBuffer = _lastRenderTarget->_depthStencil.texture;
-	_lastStencilBuffer = _lastRenderTarget->_depthStencil.texture;
-    _lastViewport = csmRectF(GetCocos2dRenderer()->getViewport().x, GetCocos2dRenderer()->getViewport().y, GetCocos2dRenderer()->getViewport().w, GetCocos2dRenderer()->getViewport().h);
+
+    // Important:
+    // For the default render target, _color[0].texture may be a swapchain image.
+    // Swapchain images must not be treated as ordinary sampled/offscreen textures.
+    //
+    // Therefore:
+    // - default render target  -> save nullptr color/depth/stencil buffers
+    // - offscreen render target -> save actual attachments
+    if (_lastRenderTarget && !_lastRenderTarget->isDefaultRenderTarget())
+    {
+        _lastColorBuffer = _lastRenderTarget->_color.size() > 0 ? _lastRenderTarget->_color[0].texture : nullptr;
+
+        _lastDepthBuffer   = _lastRenderTarget->_depthStencil.texture;
+        _lastStencilBuffer = _lastRenderTarget->_depthStencil.texture;
+    }
+    else
+    {
+        _lastColorBuffer   = nullptr;
+        _lastDepthBuffer   = nullptr;
+        _lastStencilBuffer = nullptr;
+    }
+
+    const auto& viewport = GetCocos2dRenderer()->getViewport();
+    _lastViewport        = csmRectF(viewport.x, viewport.y, viewport.w, viewport.h);
 }
 
-void CubismRendererProfile_Cocos2dx::Restore()
+void CubismRendererProfile_Axmol::Restore()
 {
     GetCocos2dRenderer()->setScissorTest(_lastScissorTest);
     GetCocos2dRenderer()->setStencilTest(_lastStencilTest);
@@ -673,32 +686,36 @@ void CubismRendererProfile_Cocos2dx::Restore()
 
     if (_lastRenderTarget)
     {
-        // GetCocos2dRenderer()->setRenderTarget(
-        //     _lastRenderTarget);  // GetCocos2dRenderer()->setRenderTargetParams(_lastRenderTargetFlag, _lastColorBuffer,
-        //                          // _lastDepthBuffer, _lastStencilBuffer);
+        // Do not overwrite attachments of the default render target.
+        // Its color attachment is the current swapchain image and must be managed
+        // by the renderer / backend.
+        if (_lastRenderTarget->isDefaultRenderTarget())
+        {
+            GetCocos2dRenderer()->setRenderTarget(_lastRenderTarget);
+        }
+        else
+        {
+            _lastRenderTarget->setColorTexture(_lastColorBuffer);
+            _lastRenderTarget->setDepthStencilTexture(_lastDepthBuffer);
 
-        CallbackCommand* cmd = GetCocos2dRenderer()->nextCallbackCommand();
-        cmd->init(0);
-
-        auto restoringRT = _lastRenderTarget;
-        restoringRT->setColorTexture(_lastColorBuffer);
-		restoringRT->setDepthStencilTexture(_lastDepthBuffer);
-		// restoringRT->setTargetFlags(_lastRenderTargetFlag);
-        cmd->func        = [=]() -> void {
-            GetCocos2dRenderer()->setRenderTarget(restoringRT);
-        };
-        // AddCommand([=]() -> void { GetCocos2dRenderer()->setRenderTarget(_lastRenderTarget); });
+            GetCocos2dRenderer()->setRenderTarget(_lastRenderTarget);
+        }
     }
+    else
+    {
+        GetCocos2dRenderer()->setRenderTarget(GetCocos2dRenderer()->getDefaultRenderTarget());
+    }
+
     GetCocos2dRenderer()->setViewport(_lastViewport.X, _lastViewport.Y, _lastViewport.Width, _lastViewport.Height);
 }
 
 
 /*********************************************************************************************************************
-*                                       CubismShader_Cocos2dx
+*                                       CubismShader_Axmol
 ********************************************************************************************************************/
 namespace {
     const csmInt32 ShaderCount = 19; ///< シェーダの数 = マスク生成用 + (通常 + 加算 + 乗算) * (マスク無 + マスク有 + マスク有反転 + マスク無の乗算済アルファ対応版 + マスク有の乗算済アルファ対応版 + マスク有反転の乗算済アルファ対応版)
-    CubismShader_Cocos2dx* s_instance;
+    CubismShader_Axmol* s_instance;
 }
 
 enum ShaderNames
@@ -731,7 +748,7 @@ enum ShaderNames
     ShaderNames_MultMaskedPremultipliedAlphaInverted,
 };
 
-void CubismShader_Cocos2dx::ReleaseShaderProgram()
+void CubismShader_Axmol::ReleaseShaderProgram()
 {
     for (csmUint32 i = 0; i < _shaderSets.GetSize(); i++)
     {
@@ -795,42 +812,42 @@ static const csmChar* FragShaderSrcMaskInvertedPremultipliedAlpha =
 static const csmChar* FragShaderSrcMaskInvertedPremultipliedAlphaTegra = "custom/live2d_mask_inverted_premultiplied_alpha_tegra_fs";
 #endif
 
-CubismShader_Cocos2dx::CubismShader_Cocos2dx()
+CubismShader_Axmol::CubismShader_Axmol()
 { }
 
-CubismShader_Cocos2dx::~CubismShader_Cocos2dx()
+CubismShader_Axmol::~CubismShader_Axmol()
 {
     ReleaseShaderProgram();
 }
 
-CubismShader_Cocos2dx* CubismShader_Cocos2dx::GetInstance()
+CubismShader_Axmol* CubismShader_Axmol::GetInstance()
 {
     if (s_instance == NULL)
     {
-        s_instance = CSM_NEW CubismShader_Cocos2dx();
+        s_instance = CSM_NEW CubismShader_Axmol();
     }
     return s_instance;
 }
 
-void CubismShader_Cocos2dx::DeleteInstance()
+void CubismShader_Axmol::DeleteInstance()
 {
     if (s_instance)
     {
-        CSM_DELETE_SELF(CubismShader_Cocos2dx, s_instance);
+        CSM_DELETE_SELF(CubismShader_Axmol, s_instance);
         s_instance = NULL;
     }
 }
 
 #ifdef CSM_TARGET_ANDROID_ES2
-csmBool CubismShader_Cocos2dx::s_extMode = false;
-csmBool CubismShader_Cocos2dx::s_extPAMode = false;
-void CubismShader_Cocos2dx::SetExtShaderMode(csmBool extMode, csmBool extPAMode) {
+csmBool CubismShader_Axmol::s_extMode = false;
+csmBool CubismShader_Axmol::s_extPAMode = false;
+void CubismShader_Axmol::SetExtShaderMode(csmBool extMode, csmBool extPAMode) {
     s_extMode = extMode;
     s_extPAMode = extPAMode;
 }
 #endif
 
-void CubismShader_Cocos2dx::GenerateShaders()
+void CubismShader_Axmol::GenerateShaders()
 {
     for (csmInt32 i = 0; i < ShaderCount; i++)
     {
@@ -1079,7 +1096,7 @@ void CubismShader_Cocos2dx::GenerateShaders()
     _shaderSets[18]->UniformBaseColorLocation = _shaderSets[18]->ShaderProgram->getUniformLocation("u_baseColor");
 }
 
-void CubismShader_Cocos2dx::SetupShaderProgram(CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* drawCommand, CubismRenderer_Cocos2dx* renderer, ax::Texture2D* texture
+void CubismShader_Axmol::SetupShaderProgram(CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* drawCommand, CubismRenderer_Axmol* renderer, ax::Texture2D* texture
                                                 , csmInt32 vertexCount, csmFloat32* vertexArray
                                                 , csmFloat32* uvArray, csmFloat32 opacity
                                                 , CubismRenderer::CubismBlendMode colorBlendMode
@@ -1236,7 +1253,7 @@ void CubismShader_Cocos2dx::SetupShaderProgram(CubismCommandBuffer_Cocos2dx::Dra
         cmd->setOwnPSVL(programState, layout, RenderCommand::ADOPT_FLAG_PS);
 }
 
-ax::rhi::Program* CubismShader_Cocos2dx::LoadShaderProgram(const csmChar* vertShaderPath,
+ax::rhi::Program* CubismShader_Axmol::LoadShaderProgram(const csmChar* vertShaderPath,
                                                                const csmChar* fragShaderPath)
 {
     // cocos2dx対応
@@ -1245,38 +1262,38 @@ ax::rhi::Program* CubismShader_Cocos2dx::LoadShaderProgram(const csmChar* vertSh
 }
 
 /*********************************************************************************************************************
- *                                      CubismRenderer_Cocos2dx
+ *                                      CubismRenderer_Axmol
  ********************************************************************************************************************/
 
 #ifdef CSM_TARGET_ANDROID_ES2
-void CubismRenderer_Cocos2dx::SetExtShaderMode(csmBool extMode, csmBool extPAMode)
+void CubismRenderer_Axmol::SetExtShaderMode(csmBool extMode, csmBool extPAMode)
 {
-    CubismShader_Cocos2dx::SetExtShaderMode(extMode, extPAMode);
-    CubismShader_Cocos2dx::DeleteInstance();
+    CubismShader_Axmol::SetExtShaderMode(extMode, extPAMode);
+    CubismShader_Axmol::DeleteInstance();
 }
 
-void CubismRenderer_Cocos2dx::ReloadShader()
+void CubismRenderer_Axmol::ReloadShader()
 {
-    CubismShader_Cocos2dx::DeleteInstance();
+    CubismShader_Axmol::DeleteInstance();
 }
 #endif
 
 CubismRenderer* CubismRenderer::Create()
 {
-    return CSM_NEW CubismRenderer_Cocos2dx();
+    return CSM_NEW CubismRenderer_Axmol();
 }
 
 void CubismRenderer::StaticRelease()
 {
-    CubismRenderer_Cocos2dx::DoStaticRelease();
+    CubismRenderer_Axmol::DoStaticRelease();
 }
 
 namespace
 {
-    CubismCommandBuffer_Cocos2dx*       _commandBuffer;
+    CubismCommandBuffer_Axmol*       _commandBuffer;
 }
 
-CubismRenderer_Cocos2dx::CubismRenderer_Cocos2dx() : _clippingManager(NULL)
+CubismRenderer_Axmol::CubismRenderer_Axmol() : _clippingManager(NULL)
                                                      , _clippingContextBufferForMask(NULL)
                                                      , _clippingContextBufferForDraw(NULL)
 {
@@ -1284,25 +1301,25 @@ CubismRenderer_Cocos2dx::CubismRenderer_Cocos2dx() : _clippingManager(NULL)
     _textures.PrepareCapacity(32, true);
 }
 
-CubismRenderer_Cocos2dx::~CubismRenderer_Cocos2dx()
+CubismRenderer_Axmol::~CubismRenderer_Axmol()
 {
-    CSM_DELETE_SELF(CubismClippingManager_Cocos2dx, _clippingManager);
+    CSM_DELETE_SELF(CubismClippingManager_Axmol, _clippingManager);
 }
 
-void CubismRenderer_Cocos2dx::DoStaticRelease()
+void CubismRenderer_Axmol::DoStaticRelease()
 {
 #ifdef CSM_TARGET_WINGL
     s_isInitializeGlFunctionsSuccess = false;     ///< 初期化が完了したかどうか。trueなら初期化完了
     s_isFirstInitializeGlFunctions = true;        ///< 最初の初期化実行かどうか。trueなら最初の初期化実行
 #endif
-    CubismShader_Cocos2dx::DeleteInstance();
+    CubismShader_Axmol::DeleteInstance();
 }
 
-void CubismRenderer_Cocos2dx::Initialize(CubismModel* model)
+void CubismRenderer_Axmol::Initialize(CubismModel* model)
 {
     if (model->IsUsingMasking())
     {
-        _clippingManager = CSM_NEW CubismClippingManager_Cocos2dx();  //クリッピングマスク・バッファ前処理方式を初期化
+        _clippingManager = CSM_NEW CubismClippingManager_Axmol();  //クリッピングマスク・バッファ前処理方式を初期化
         _clippingManager->Initialize(
             *model,
             model->GetDrawableCount(),
@@ -1323,7 +1340,7 @@ void CubismRenderer_Cocos2dx::Initialize(CubismModel* model)
         const csmInt32 drawableVertexIndexCount = model->GetDrawableVertexIndexCount(i);
         const csmSizeInt vertexSize = sizeof(csmFloat32) * 2;
 
-        _drawableDrawCommandBuffer[i] = CSM_NEW CubismCommandBuffer_Cocos2dx::DrawCommandBuffer();
+        _drawableDrawCommandBuffer[i] = CSM_NEW CubismCommandBuffer_Axmol::DrawCommandBuffer();
         _drawableDrawCommandBuffer[i]->GetCommandDraw()->GetCommand()->setDrawType(ax::CustomCommand::DrawType::ELEMENT);
         _drawableDrawCommandBuffer[i]->GetCommandDraw()->GetCommand()->setPrimitiveType(ax::rhi::PrimitiveType::TRIANGLE);
         _drawableDrawCommandBuffer[i]->CreateVertexBuffer(vertexSize, drawableVertexCount * 2);      // Vertices + UVs
@@ -1338,11 +1355,11 @@ void CubismRenderer_Cocos2dx::Initialize(CubismModel* model)
     CubismRenderer::Initialize(model);  //親クラスの処理を呼ぶ
 }
 
-void CubismRenderer_Cocos2dx::PreDraw()
+void CubismRenderer_Axmol::PreDraw()
 {
-    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Cocos2dx::OperationType_ScissorTest, false);
-    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Cocos2dx::OperationType_StencilTest, false);
-    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Cocos2dx::OperationType_DepthTest, false);
+    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Axmol::OperationType_ScissorTest, false);
+    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Axmol::OperationType_StencilTest, false);
+    _commandBuffer->SetOperationEnable(CubismCommandBuffer_Axmol::OperationType_DepthTest, false);
 
 
     //異方性フィルタリング。プラットフォームのOpenGLによっては未対応の場合があるので、未設定のときは設定しない
@@ -1353,7 +1370,7 @@ void CubismRenderer_Cocos2dx::PreDraw()
 }
 
 
-void CubismRenderer_Cocos2dx::DoDrawModel()
+void CubismRenderer_Axmol::DoDrawModel()
 {
     //------------ クリッピングマスク・バッファ前処理方式の場合 ------------
     if (_clippingManager != NULL)
@@ -1440,7 +1457,7 @@ void CubismRenderer_Cocos2dx::DoDrawModel()
                 for (csmInt32 index = 0; index < clipDrawCount; index++)
                 {
                     const csmInt32 clipDrawIndex = clipContext->_clippingIdList[index];
-                    CubismCommandBuffer_Cocos2dx::DrawCommandBuffer* drawCommandBufferMask = clipContext->_clippingCommandBufferList->At(index);
+                    CubismCommandBuffer_Axmol::DrawCommandBuffer* drawCommandBufferMask = clipContext->_clippingCommandBufferList->At(index);
 
                     // 頂点情報が更新されておらず、信頼性がない場合は描画をパスする
                     if (!GetModel()->GetDrawableDynamicFlagVertexPositionsDidChange(clipDrawIndex))
@@ -1505,7 +1522,7 @@ void CubismRenderer_Cocos2dx::DoDrawModel()
             }
         }
 
-        CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* drawCommandDraw = _drawableDrawCommandBuffer[drawableIndex]->GetCommandDraw();
+        CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* drawCommandDraw = _drawableDrawCommandBuffer[drawableIndex]->GetCommandDraw();
 
         // クリッピングマスクをセットする
         SetClippingContextBufferForDraw(clipContext);
@@ -1536,13 +1553,13 @@ void CubismRenderer_Cocos2dx::DoDrawModel()
 
 }
 
-void CubismRenderer_Cocos2dx::DrawMesh(csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount,
+void CubismRenderer_Axmol::DrawMesh(csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount,
     csmUint16* indexArray, csmFloat32* vertexArray, csmFloat32* uvArray, csmFloat32 opacity,
     CubismBlendMode colorBlendMode, csmBool invertedMask)
 {
 }
 
-void CubismRenderer_Cocos2dx::DrawMeshCocos2d(CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* drawCommand, csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount
+void CubismRenderer_Axmol::DrawMeshCocos2d(CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* drawCommand, csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount
                                         , csmUint16* indexArray, csmFloat32* vertexArray, csmFloat32* uvArray
                                         , csmFloat32 opacity, CubismBlendMode colorBlendMode, csmBool invertedMask)
 {
@@ -1553,15 +1570,15 @@ void CubismRenderer_Cocos2dx::DrawMeshCocos2d(CubismCommandBuffer_Cocos2dx::Draw
     // 裏面描画の有効・無効
     if (IsCulling())
     {
-        _commandBuffer->SetOperationEnable(CubismCommandBuffer_Cocos2dx::OperationType_Culling, true);
+        _commandBuffer->SetOperationEnable(CubismCommandBuffer_Axmol::OperationType_Culling, true);
     }
     else
     {
-        _commandBuffer->SetOperationEnable(CubismCommandBuffer_Cocos2dx::OperationType_Culling, false);
+        _commandBuffer->SetOperationEnable(CubismCommandBuffer_Axmol::OperationType_Culling, false);
     }
 
     // Cubism SDK OpenGLはマスク・アートメッシュ共にCCWが表面
-    _commandBuffer->SetWindingMode(CubismCommandBuffer_Cocos2dx::WindingType_CounterClockWise);
+    _commandBuffer->SetWindingMode(CubismCommandBuffer_Axmol::WindingType_CounterClockWise);
 
     CubismTextureColor modelColorRGBA = GetModelColor();
 
@@ -1590,7 +1607,7 @@ void CubismRenderer_Cocos2dx::DrawMeshCocos2d(CubismCommandBuffer_Cocos2dx::Draw
     }
 
 
-    CubismShader_Cocos2dx::GetInstance()->SetupShaderProgram(
+    CubismShader_Axmol::GetInstance()->SetupShaderProgram(
         drawCommand, this, drawTexture, vertexCount, vertexArray, uvArray
         , opacity, colorBlendMode, modelColorRGBA, IsPremultipliedAlpha()
         , GetMvpMatrix(), invertedMask
@@ -1606,51 +1623,51 @@ void CubismRenderer_Cocos2dx::DrawMeshCocos2d(CubismCommandBuffer_Cocos2dx::Draw
     SetClippingContextBufferForMask(NULL);
 }
 
-CubismCommandBuffer_Cocos2dx* CubismRenderer_Cocos2dx::GetCommandBuffer()
+CubismCommandBuffer_Axmol* CubismRenderer_Axmol::GetCommandBuffer()
 {
     return _commandBuffer;
 }
 
-void CubismRenderer_Cocos2dx::StartFrame(CubismCommandBuffer_Cocos2dx* commandBuffer)
+void CubismRenderer_Axmol::StartFrame(CubismCommandBuffer_Axmol* commandBuffer)
 {
     _commandBuffer = commandBuffer;
 }
 
-void CubismRenderer_Cocos2dx::EndFrame(CubismCommandBuffer_Cocos2dx* commandBuffer)
+void CubismRenderer_Axmol::EndFrame(CubismCommandBuffer_Axmol* commandBuffer)
 {
 }
 
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer* CubismRenderer_Cocos2dx::GetDrawCommandBufferData(csmInt32 drawableIndex)
+CubismCommandBuffer_Axmol::DrawCommandBuffer* CubismRenderer_Axmol::GetDrawCommandBufferData(csmInt32 drawableIndex)
 {
     return _drawableDrawCommandBuffer[drawableIndex];
 }
 
-void CubismRenderer_Cocos2dx::SaveProfile()
+void CubismRenderer_Axmol::SaveProfile()
 {
     _rendererProfile.Save();
 }
 
-void CubismRenderer_Cocos2dx::RestoreProfile()
+void CubismRenderer_Axmol::RestoreProfile()
 {
     _rendererProfile.Restore();
 }
 
-void CubismRenderer_Cocos2dx::BindTexture(csmUint32 modelTextureNo, ax::Texture2D* texture)
+void CubismRenderer_Axmol::BindTexture(csmUint32 modelTextureNo, ax::Texture2D* texture)
 {
     _textures[modelTextureNo] = texture;
 }
 
-const csmMap<csmInt32, ax::Texture2D*>& CubismRenderer_Cocos2dx::GetBindedTextures() const
+const csmMap<csmInt32, ax::Texture2D*>& CubismRenderer_Axmol::GetBindedTextures() const
 {
     return _textures;
 }
 
-void CubismRenderer_Cocos2dx::SetClippingMaskBufferSize(csmFloat32 width, csmFloat32 height)
+void CubismRenderer_Axmol::SetClippingMaskBufferSize(csmFloat32 width, csmFloat32 height)
 {
     //FrameBufferのサイズを変更するためにインスタンスを破棄・再作成する
-    CSM_DELETE_SELF(CubismClippingManager_Cocos2dx, _clippingManager);
+    CSM_DELETE_SELF(CubismClippingManager_Axmol, _clippingManager);
 
-    _clippingManager = CSM_NEW CubismClippingManager_Cocos2dx();
+    _clippingManager = CSM_NEW CubismClippingManager_Axmol();
 
     _clippingManager->SetClippingMaskBufferSize(width, height);
 
@@ -1662,27 +1679,27 @@ void CubismRenderer_Cocos2dx::SetClippingMaskBufferSize(csmFloat32 width, csmFlo
     );
 }
 
-CubismVector2 CubismRenderer_Cocos2dx::GetClippingMaskBufferSize() const
+CubismVector2 CubismRenderer_Axmol::GetClippingMaskBufferSize() const
 {
     return _clippingManager->GetClippingMaskBufferSize();
 }
 
-void CubismRenderer_Cocos2dx::SetClippingContextBufferForMask(CubismClippingContext* clip)
+void CubismRenderer_Axmol::SetClippingContextBufferForMask(CubismClippingContext* clip)
 {
     _clippingContextBufferForMask = clip;
 }
 
-CubismClippingContext* CubismRenderer_Cocos2dx::GetClippingContextBufferForMask() const
+CubismClippingContext* CubismRenderer_Axmol::GetClippingContextBufferForMask() const
 {
     return _clippingContextBufferForMask;
 }
 
-void CubismRenderer_Cocos2dx::SetClippingContextBufferForDraw(CubismClippingContext* clip)
+void CubismRenderer_Axmol::SetClippingContextBufferForDraw(CubismClippingContext* clip)
 {
     _clippingContextBufferForDraw = clip;
 }
 
-CubismClippingContext* CubismRenderer_Cocos2dx::GetClippingContextBufferForDraw() const
+CubismClippingContext* CubismRenderer_Axmol::GetClippingContextBufferForDraw() const
 {
     return _clippingContextBufferForDraw;
 }

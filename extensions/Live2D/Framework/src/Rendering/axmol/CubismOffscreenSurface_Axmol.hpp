@@ -8,7 +8,7 @@
 #pragma once
 
 #include "CubismFramework.hpp"
-#include "CubismCommandBuffer_Cocos2dx.hpp"
+#include "CubismCommandBuffer_Axmol.hpp"
 #include "Type/csmVector.hpp"
 #include "Type/csmRectF.hpp"
 #include "Type/csmMap.hpp"
@@ -49,23 +49,23 @@ namespace Live2D { namespace Cubism { namespace Framework { namespace Rendering 
 /**
  * @brief  オフスクリーン描画用構造体
  */
-class CubismOffscreenFrame_Cocos2dx
+class CubismOffscreenFrame_Axmol
 {
 public:
 
-    CubismOffscreenFrame_Cocos2dx();
+    CubismOffscreenFrame_Axmol();
 
     /**
      * @brief   指定の描画ターゲットに向けて描画開始
      *
      */
-    void BeginDraw(CubismCommandBuffer_Cocos2dx* commandBuffer, rhi::Texture* colorBufferOnFinishDrawing);
+    void BeginDraw(CubismCommandBuffer_Axmol* commandBuffer, rhi::Texture* colorBufferOnFinishDrawing);
 
     /**
      * @brief   描画終了
      *
      */
-    void EndDraw(CubismCommandBuffer_Cocos2dx* commandBuffer);
+    void EndDraw(CubismCommandBuffer_Axmol* commandBuffer);
 
     /**
      * @brief   レンダリングターゲットのクリア
@@ -75,7 +75,7 @@ public:
      * @param   b   青(0.0~1.0)
      * @param   a   α(0.0~1.0)
      */
-    void Clear(CubismCommandBuffer_Cocos2dx* commandBuffer, float r, float g, float b, float a);
+    void Clear(CubismCommandBuffer_Axmol* commandBuffer, float r, float g, float b, float a);
 
     /**
      *  @brief  CubismOffscreenFrame作成

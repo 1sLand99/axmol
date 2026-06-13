@@ -5,12 +5,12 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-#include "CubismOffscreenSurface_Cocos2dx.hpp"
+#include "CubismOffscreenSurface_Axmol.hpp"
 
 //------------ LIVE2D NAMESPACE ------------
 namespace Live2D { namespace Cubism { namespace Framework { namespace Rendering {
 
-CubismOffscreenFrame_Cocos2dx::CubismOffscreenFrame_Cocos2dx()
+CubismOffscreenFrame_Axmol::CubismOffscreenFrame_Axmol()
     : _renderTexture(NULL)
     , _colorBuffer(NULL)
     , _isInheritedRenderTexture(false)
@@ -21,7 +21,7 @@ CubismOffscreenFrame_Cocos2dx::CubismOffscreenFrame_Cocos2dx()
 }
 
 
-void CubismOffscreenFrame_Cocos2dx::BeginDraw(CubismCommandBuffer_Cocos2dx* commandBuffer,
+void CubismOffscreenFrame_Axmol::BeginDraw(CubismCommandBuffer_Axmol* commandBuffer,
                                               rhi::Texture* colorBufferOnFinishDrawing)
 {
     if (!IsValid())
@@ -29,43 +29,62 @@ void CubismOffscreenFrame_Cocos2dx::BeginDraw(CubismCommandBuffer_Cocos2dx* comm
         return;
     }
 
-    // バックバッファのサーフェイスを記憶しておく
-    if (colorBufferOnFinishDrawing == NULL)
+    // Save the render target to restore after mask rendering.
+    //
+    // nullptr means "restore default render target".
+    // This is important because the default render target color texture may be
+    // a swapchain image, which must not be treated as an ordinary offscreen texture.
+    if (colorBufferOnFinishDrawing)
     {
-        _previousColorBuffer = commandBuffer->GetColorBuffer();
-        if (_previousColorBuffer == NULL)
-        {
-            auto rt = GetCocos2dRenderer()->getRenderTarget();
-            _previousColorBuffer = !rt->isDefaultRenderTarget() ? rt->_color[0].texture : nullptr; // GetCocos2dRenderer()->getColorAttachment();
-        }
+        // Caller explicitly provided a non-default color buffer.
+        _previousColorBuffer = colorBufferOnFinishDrawing;
     }
     else
     {
-        _previousColorBuffer = colorBufferOnFinishDrawing;
+        _previousColorBuffer = commandBuffer->GetColorBuffer();
+
+        if (_previousColorBuffer == nullptr)
+        {
+            auto rt = GetCocos2dRenderer()->getRenderTarget();
+
+            if (rt && !rt->isDefaultRenderTarget() && !rt->_color.empty())
+            {
+                _previousColorBuffer = rt->_color[0].texture;
+            }
+            else
+            {
+                // Default render target.
+                // Restore through SetColorBuffer(nullptr), not through swapchain texture.
+                _previousColorBuffer = nullptr;
+            }
+        }
     }
 
-    // マスク用RenderTextureをactiveにセット
+    // Set mask RenderTexture as current render target.
     commandBuffer->SetColorBuffer(_renderTexture->getSprite()->getTexture()->getRHITexture());
 }
 
-void CubismOffscreenFrame_Cocos2dx::EndDraw(CubismCommandBuffer_Cocos2dx* commandBuffer)
+void CubismOffscreenFrame_Axmol::EndDraw(CubismCommandBuffer_Axmol* commandBuffer)
 {
     if (!IsValid())
     {
         return;
     }
 
-    // 描画対象を戻す
+    // nullptr restores the default render target.
+    // Non-null restores an offscreen color buffer.
     commandBuffer->SetColorBuffer(_previousColorBuffer);
+
+    _previousColorBuffer = nullptr;
 }
 
-void CubismOffscreenFrame_Cocos2dx::Clear(CubismCommandBuffer_Cocos2dx* commandBuffer, float r, float g, float b, float a)
+void CubismOffscreenFrame_Axmol::Clear(CubismCommandBuffer_Axmol* commandBuffer, float r, float g, float b, float a)
 {
     // マスクをクリアする
     commandBuffer->Clear(r, g, b, a);
 }
 
-csmBool CubismOffscreenFrame_Cocos2dx::CreateOffscreenFrame(csmUint32 displayBufferWidth, csmUint32 displayBufferHeight, ax::RenderTexture* renderTexture)
+csmBool CubismOffscreenFrame_Axmol::CreateOffscreenFrame(csmUint32 displayBufferWidth, csmUint32 displayBufferHeight, ax::RenderTexture* renderTexture)
 {
     // 一旦削除
     DestroyOffscreenFrame();
@@ -135,7 +154,7 @@ csmBool CubismOffscreenFrame_Cocos2dx::CreateOffscreenFrame(csmUint32 displayBuf
     return false;
 }
 
-void CubismOffscreenFrame_Cocos2dx::DestroyOffscreenFrame()
+void CubismOffscreenFrame_Axmol::DestroyOffscreenFrame()
 {
     if ((_renderTexture != NULL) && !_isInheritedRenderTexture)
     {
@@ -144,27 +163,27 @@ void CubismOffscreenFrame_Cocos2dx::DestroyOffscreenFrame()
     }
 }
 
-ax::Texture2D* CubismOffscreenFrame_Cocos2dx::GetColorBuffer() const
+ax::Texture2D* CubismOffscreenFrame_Axmol::GetColorBuffer() const
 {
     return _renderTexture->getSprite()->getTexture();
 }
 
-csmUint32 CubismOffscreenFrame_Cocos2dx::GetBufferWidth() const
+csmUint32 CubismOffscreenFrame_Axmol::GetBufferWidth() const
 {
     return _bufferWidth;
 }
 
-csmUint32 CubismOffscreenFrame_Cocos2dx::GetBufferHeight() const
+csmUint32 CubismOffscreenFrame_Axmol::GetBufferHeight() const
 {
     return _bufferHeight;
 }
 
-csmRectF CubismOffscreenFrame_Cocos2dx::GetViewPortSize() const
+csmRectF CubismOffscreenFrame_Axmol::GetViewPortSize() const
 {
     return _viewportSize;
 }
 
-csmBool CubismOffscreenFrame_Cocos2dx::IsValid() const
+csmBool CubismOffscreenFrame_Axmol::IsValid() const
 {
     return _renderTexture != NULL;
 }

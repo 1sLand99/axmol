@@ -39,6 +39,7 @@ namespace ax::rhi::vk
  */
 
 class DriverImpl;
+class RenderTargetImpl;
 class TextureImpl;
 
 /**
@@ -108,12 +109,13 @@ private:
  */
 class TextureImpl : public rhi::Texture
 {
+    friend class RenderTargetImpl;
+
 public:
     /**
      * @param desc Specifies the texture description.
      */
     TextureImpl(DriverImpl*, const TextureDesc& desc);
-    TextureImpl(DriverImpl*, VkImage existingImage, VkImageView existingImageView);
     ~TextureImpl();
 
     // only operate level=0, layer=0
@@ -156,7 +158,13 @@ public:
 
     void setLastFenceValue(uint64_t fenceValue) { _lastFenceValue = fenceValue; }
 
-private:
+    bool canUseShaderReadOnlyLayout() const
+    {
+        return (_vkUsageFlags & (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) != 0;
+    }
+
+protected:
+    TextureImpl(DriverImpl*, VkImage existingImage, VkImageView existingImageView, VkImageUsageFlags usage);
     void ensureNativeTexture();
     void generateMipmaps(VkCommandBuffer cmd);
 
@@ -168,6 +176,7 @@ private:
 
     uint64_t _lastFenceValue{0};
 
+    VkImageUsageFlags _vkUsageFlags{0};
     bool _ownResources{false};
 };
 

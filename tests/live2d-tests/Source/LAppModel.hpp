@@ -12,7 +12,7 @@
 #include <Model/CubismUserModel.hpp>
 #include <ICubismModelSetting.hpp>
 #include <Type/csmRectF.hpp>
-#include <Rendering/axmol/CubismOffscreenSurface_Cocos2dx.hpp>
+#include <Rendering/axmol/CubismOffscreenSurface_Axmol.hpp>
 #include "LAppDefine.hpp"
 #include "AppDelegate.h"
 
@@ -58,7 +58,7 @@ public:
      *
      * @param[in]  matrix  View-Projection行列
      */
-    void Draw(Csm::Rendering::CubismCommandBuffer_Cocos2dx* commandBuffer, Csm::CubismMatrix44& matrix);
+    void Draw(Csm::Rendering::CubismCommandBuffer_Axmol* commandBuffer, Csm::CubismMatrix44& matrix);
 
     /**
      * @brief   引数で指定したモーションの再生を開始する。
@@ -203,7 +203,7 @@ private:
     const Csm::CubismId* _idParamEyeBallX;          ///< パラメータID: ParamEyeBallX
     const Csm::CubismId* _idParamEyeBallY;          ///< パラメータID: ParamEyeBallXY
 
-    Csm::Rendering::CubismOffscreenFrame_Cocos2dx*  _renderBuffer;  ///< モードによってはCubismOffscreenFrameのテクスチャを描画
+    Csm::Rendering::CubismOffscreenFrame_Axmol*  _renderBuffer;  ///< モードによってはCubismOffscreenFrameのテクスチャを描画
     ax::RenderTexture* _renderSprite;          ///< _renderBufferを描画するスプライト
     float _clearColor[4];                           ///< _renderBufferをクリアする際の色
     Csm::csmVector<ax::Texture2D*> _loadedTextures;

@@ -92,6 +92,9 @@ namespace ax::rhi::vk
  * @{
  */
 
+static constexpr auto SWAPCHAIN_IMAGE_USAGE_FLAGS =
+    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
 struct PixelFormatInfo
 {
     VkFormat format;

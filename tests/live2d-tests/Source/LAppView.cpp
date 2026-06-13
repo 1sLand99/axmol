@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -77,6 +77,7 @@ void LAppView::onEnter()
     auto listener = PointerEventListener::create();
 
     // タッチメソッド設定
+    listener->onPointerHitTest = [](PointerEvent*, const Camera*, Vec3*) { return true; };
     listener->onPointerDown = AX_CALLBACK_1(LAppView::onPointerDown, this);
     listener->onPointerMove = AX_CALLBACK_1(LAppView::onPointerMove, this);
     listener->onPointerUp = AX_CALLBACK_1(LAppView::onPointerUp, this);

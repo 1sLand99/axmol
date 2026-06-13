@@ -47,6 +47,6 @@ private:
     TouchManager* touchMgr;
     Csm::CubismMatrix44* deviceToScreen;
     Csm::CubismViewMatrix* viewMatrix;
-    Csm::Rendering::CubismCommandBuffer_Cocos2dx _commandBuffer;
+    Csm::Rendering::CubismCommandBuffer_Axmol _commandBuffer;
     DrawNode* _debugRects;
 };

@@ -5,44 +5,44 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-#include "CubismCommandBuffer_Cocos2dx.hpp"
+#include "CubismCommandBuffer_Axmol.hpp"
 #include "CubismFramework.hpp"
 #include "axmol/rhi/RenderTarget.h"
 
 //------------ LIVE2D NAMESPACE ------------
 namespace Live2D { namespace Cubism { namespace Framework { namespace Rendering {
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand::DrawCommand()
+CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand::DrawCommand()
 {
     _command.init(0.0);
 }
 
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand::~DrawCommand()
+CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand::~DrawCommand()
 {
 }
 
-ax::rhi::BlendDesc* CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand::GetBlendDescriptor()
+ax::rhi::BlendDesc* CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand::GetBlendDescriptor()
 {
     return &_command.blendDesc();
 }
 
-ax::CustomCommand* CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand::GetCommand()
+ax::CustomCommand* CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand::GetCommand()
 {
     return &_command;
 }
 
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommandBuffer()
+CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommandBuffer()
     : _vbStride(0)
     , _vbCount(0)
     , _ibCount(0)
 {
 }
 
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::~DrawCommandBuffer()
+CubismCommandBuffer_Axmol::DrawCommandBuffer::~DrawCommandBuffer()
 {
     CSM_FREE(_drawBuffer);
 }
 
-void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::CreateVertexBuffer(csmSizeInt stride, csmSizeInt count)
+void CubismCommandBuffer_Axmol::DrawCommandBuffer::CreateVertexBuffer(csmSizeInt stride, csmSizeInt count)
 {
     _vbStride = stride;
     _vbCount = count;
@@ -50,13 +50,13 @@ void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::CreateVertexBuffer(csmSize
     _drawCommandDraw.GetCommand()->createVertexBuffer(stride, count, ax::CustomCommand::BufferUsage::DYNAMIC);
 }
 
-void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::CreateIndexBuffer(csmSizeInt count)
+void CubismCommandBuffer_Axmol::DrawCommandBuffer::CreateIndexBuffer(csmSizeInt count)
 {
     _ibCount = count;
     _drawCommandDraw.GetCommand()->createIndexBuffer(ax::rhi::IndexFormat::U_SHORT, count, ax::CustomCommand::BufferUsage::DYNAMIC);
 }
 
-void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::UpdateVertexBuffer(void* data, void* uvData, csmSizeInt count)
+void CubismCommandBuffer_Axmol::DrawCommandBuffer::UpdateVertexBuffer(void* data, void* uvData, csmSizeInt count)
 {
     csmSizeInt length = count * _vbStride;
     csmFloat32* dest = reinterpret_cast<csmFloat32*>(_drawBuffer);
@@ -81,35 +81,35 @@ void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::UpdateVertexBuffer(void* d
     }
 }
 
-void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::UpdateIndexBuffer(void* data, csmSizeInt count)
+void CubismCommandBuffer_Axmol::DrawCommandBuffer::UpdateIndexBuffer(void* data, csmSizeInt count)
 {
     csmSizeInt length = count * sizeof(csmInt16);
 
     _drawCommandDraw.GetCommand()->updateIndexBuffer(data, length);
 }
 
-void CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::CommitVertexBuffer() {
+void CubismCommandBuffer_Axmol::DrawCommandBuffer::CommitVertexBuffer() {
 
     csmSizeInt count = _vbCount * _vbStride;
 
     _drawCommandDraw.GetCommand()->updateVertexBuffer(_drawBuffer, count);
 }
 
-CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::GetCommandDraw()
+CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* CubismCommandBuffer_Axmol::DrawCommandBuffer::GetCommandDraw()
 {
     return &_drawCommandDraw;
 }
 
-CubismCommandBuffer_Cocos2dx::CubismCommandBuffer_Cocos2dx()
+CubismCommandBuffer_Axmol::CubismCommandBuffer_Axmol()
     :_currentColorBuffer(NULL)
 {
 }
 
-CubismCommandBuffer_Cocos2dx::~CubismCommandBuffer_Cocos2dx()
+CubismCommandBuffer_Axmol::~CubismCommandBuffer_Axmol()
 {
 }
 
-void CubismCommandBuffer_Cocos2dx::PushCommandGroup()
+void CubismCommandBuffer_Axmol::PushCommandGroup()
 {
     auto groupCommand = GetCocos2dRenderer()->getNextGroupCommand();
     groupCommand->init(0.0);
@@ -117,12 +117,12 @@ void CubismCommandBuffer_Cocos2dx::PushCommandGroup()
     GetCocos2dRenderer()->pushGroup(groupCommand->getRenderQueueID());
 }
 
-void CubismCommandBuffer_Cocos2dx::PopCommandGroup()
+void CubismCommandBuffer_Axmol::PopCommandGroup()
 {
     GetCocos2dRenderer()->popGroup();
 }
 
-void CubismCommandBuffer_Cocos2dx::SetOperationEnable(OperationType operationType, csmBool enabled)
+void CubismCommandBuffer_Axmol::SetOperationEnable(OperationType operationType, csmBool enabled)
 {
     _operationStateArray[operationType].Enabled = enabled;
 
@@ -166,12 +166,12 @@ void CubismCommandBuffer_Cocos2dx::SetOperationEnable(OperationType operationTyp
     );
 }
 
-csmBool CubismCommandBuffer_Cocos2dx::GetOperationEnabled(OperationType operationType)
+csmBool CubismCommandBuffer_Axmol::GetOperationEnabled(OperationType operationType)
 {
     return _operationStateArray[operationType].Enabled;
 }
 
-void CubismCommandBuffer_Cocos2dx::SetCullMode(CullType cullType)
+void CubismCommandBuffer_Axmol::SetCullMode(CullType cullType)
 {
     _operationStateArray[OperationType_Culling].Arg0.i32 = cullType;
 
@@ -179,7 +179,7 @@ void CubismCommandBuffer_Cocos2dx::SetCullMode(CullType cullType)
     SetOperationEnable(OperationType_Culling, _operationStateArray[OperationType_Culling].Enabled);
 }
 
-void CubismCommandBuffer_Cocos2dx::SetWindingMode(WindingType windingType)
+void CubismCommandBuffer_Axmol::SetWindingMode(WindingType windingType)
 {
     _operationStateArray[OperationType_Winding].Arg0.i32 = windingType;
 
@@ -202,13 +202,13 @@ void CubismCommandBuffer_Cocos2dx::SetWindingMode(WindingType windingType)
     );
 }
 
-void CubismCommandBuffer_Cocos2dx::Clear(csmFloat32 r, csmFloat32 g, csmFloat32 b, csmFloat32 a)
+void CubismCommandBuffer_Axmol::Clear(csmFloat32 r, csmFloat32 g, csmFloat32 b, csmFloat32 a)
 {
     // Add the callback command internally.
     GetCocos2dRenderer()->clear(ax::ClearFlag::COLOR, ax::Color(r, g, b, a), 0.0f, 0, 0.0f);
 }
 
-void CubismCommandBuffer_Cocos2dx::Viewport(csmFloat32 x, csmFloat32 y, csmFloat32 w, csmFloat32 h)
+void CubismCommandBuffer_Axmol::Viewport(csmFloat32 x, csmFloat32 y, csmFloat32 w, csmFloat32 h)
 {
     AddCommand
     (
@@ -219,8 +219,14 @@ void CubismCommandBuffer_Cocos2dx::Viewport(csmFloat32 x, csmFloat32 y, csmFloat
     );
 }
 
-void CubismCommandBuffer_Cocos2dx::SetColorBuffer(rhi::Texture* colorBuffer)
+void CubismCommandBuffer_Axmol::SetColorBuffer(rhi::Texture* colorBuffer)
 {
+    // nullptr means default render target.
+    // Non-null means offscreen color texture.
+    //
+    // Do not pass the default render target's swapchain color texture here.
+    // Swapchain images are presentable color attachments, not ordinary sampled
+    // or offscreen textures.
     _currentColorBuffer = colorBuffer;
 
     AddCommand([=]() -> void {
@@ -229,7 +235,6 @@ void CubismCommandBuffer_Cocos2dx::SetColorBuffer(rhi::Texture* colorBuffer)
         {
             rt = GetCocos2dRenderer()->getOffscreenRenderTarget();
             rt->setColorTexture(colorBuffer);
-            //rt->setTargetFlags(RenderTargetFlag::COLOR);
         }
         else
         {
@@ -239,17 +244,17 @@ void CubismCommandBuffer_Cocos2dx::SetColorBuffer(rhi::Texture* colorBuffer)
     });
 }
 
-rhi::Texture* CubismCommandBuffer_Cocos2dx::GetColorBuffer()
+rhi::Texture* CubismCommandBuffer_Axmol::GetColorBuffer()
 {
     return _currentColorBuffer;
 }
 
-void CubismCommandBuffer_Cocos2dx::AddDrawCommand(DrawCommandBuffer::DrawCommand* drawCommand)
+void CubismCommandBuffer_Axmol::AddDrawCommand(DrawCommandBuffer::DrawCommand* drawCommand)
 {
     GetCocos2dRenderer()->addCommand(drawCommand->GetCommand());
 }
 
-void CubismCommandBuffer_Cocos2dx::AddCommand(const std::function<void()>& fn)
+void CubismCommandBuffer_Axmol::AddCommand(const std::function<void()>& fn)
 {
     ax::CallbackCommand* command = GetCocos2dRenderer()->nextCallbackCommand();
 

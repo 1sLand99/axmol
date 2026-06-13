@@ -9,8 +9,8 @@
 
 #include "../CubismRenderer.hpp"
 #include "CubismFramework.hpp"
-#include "CubismOffscreenSurface_Cocos2dx.hpp"
-#include "CubismCommandBuffer_Cocos2dx.hpp"
+#include "CubismOffscreenSurface_Axmol.hpp"
+#include "CubismCommandBuffer_Axmol.hpp"
 #include "Math/CubismVector2.hpp"
 #include "Type/csmVector.hpp"
 #include "Type/csmRectF.hpp"
@@ -47,17 +47,17 @@ using namespace ax;
 namespace Live2D { namespace Cubism { namespace Framework { namespace Rendering {
 
 //  前方宣言
-class CubismRenderer_Cocos2dx;
+class CubismRenderer_Axmol;
 class CubismClippingContext;
 
 /**
  * @brief  クリッピングマスクの処理を実行するクラス
  *
  */
-class CubismClippingManager_Cocos2dx
+class CubismClippingManager_Axmol
 {
-    friend class CubismShader_Cocos2dx;
-    friend class CubismRenderer_Cocos2dx;
+    friend class CubismShader_Axmol;
+    friend class CubismRenderer_Axmol;
 
 private:
 
@@ -79,12 +79,12 @@ private:
     /**
      * @brief    コンストラクタ
      */
-    CubismClippingManager_Cocos2dx();
+    CubismClippingManager_Axmol();
 
     /**
      * @brief    デストラクタ
      */
-    virtual ~CubismClippingManager_Cocos2dx();
+    virtual ~CubismClippingManager_Axmol();
 
     /**
      * @brief    マネージャの初期化処理<br>
@@ -106,7 +106,7 @@ private:
      * @param[in]   lastViewport ->  ビューポート
      */
     void SetupClippingContext(CubismModel& model,
-                              CubismRenderer_Cocos2dx* renderer,
+                              CubismRenderer_Axmol* renderer,
                               rhi::Texture* lastColorBuffer,
                               csmRectF lastViewport);
 
@@ -172,16 +172,16 @@ private:
  */
 class CubismClippingContext
 {
-    friend class CubismClippingManager_Cocos2dx;
-    friend class CubismShader_Cocos2dx;
-    friend class CubismRenderer_Cocos2dx;
+    friend class CubismClippingManager_Axmol;
+    friend class CubismShader_Axmol;
+    friend class CubismRenderer_Axmol;
 
 private:
     /**
      * @brief   引数付きコンストラクタ
      *
      */
-    CubismClippingContext(CubismClippingManager_Cocos2dx* manager, CubismModel& model, const csmInt32* clippingDrawableIndices, csmInt32 clipCount);
+    CubismClippingContext(CubismClippingManager_Axmol* manager, CubismModel& model, const csmInt32* clippingDrawableIndices, csmInt32 clipCount);
 
     /**
      * @brief   デストラクタ
@@ -200,7 +200,7 @@ private:
      *
      * @return  クリッピングマネージャのインスタンス
      */
-    CubismClippingManager_Cocos2dx* GetClippingManager();
+    CubismClippingManager_Axmol* GetClippingManager();
 
     csmBool _isUsing;                                ///< 現在の描画状態でマスクの準備が必要ならtrue
     const csmInt32* _clippingIdList;                 ///< クリッピングマスクのIDリスト
@@ -211,19 +211,19 @@ private:
     CubismMatrix44 _matrixForMask;                   ///< マスクの位置計算結果を保持する行列
     CubismMatrix44 _matrixForDraw;                   ///< 描画オブジェクトの位置計算結果を保持する行列
     csmVector<csmInt32>* _clippedDrawableIndexList;  ///< このマスクにクリップされる描画オブジェクトのリスト
-    csmVector<CubismCommandBuffer_Cocos2dx::DrawCommandBuffer*>* _clippingCommandBufferList;
+    csmVector<CubismCommandBuffer_Axmol::DrawCommandBuffer*>* _clippingCommandBufferList;
 
-    CubismClippingManager_Cocos2dx* _owner;        ///< このマスクを管理しているマネージャのインスタンス
+    CubismClippingManager_Axmol* _owner;        ///< このマスクを管理しているマネージャのインスタンス
 };
 
 /**
  * @brief   Cocos2dx用のシェーダプログラムを生成・破棄するクラス<br>
- *           シングルトンなクラスであり、CubismShader_Cocos2dx::GetInstance()からアクセスする。
+ *           シングルトンなクラスであり、CubismShader_Axmol::GetInstance()からアクセスする。
  *
  */
-class CubismShader_Cocos2dx
+class CubismShader_Axmol
 {
-    friend class CubismRenderer_Cocos2dx;
+    friend class CubismRenderer_Axmol;
 
 private:
     /**
@@ -231,7 +231,7 @@ private:
      *
      * @return  インスタンスのポインタ
      */
-    static CubismShader_Cocos2dx* GetInstance();
+    static CubismShader_Axmol* GetInstance();
 
     /**
      * @brief   インスタンスを解放する（シングルトン）。
@@ -258,12 +258,12 @@ private:
     /**
      * @brief   privateなコンストラクタ
      */
-    CubismShader_Cocos2dx();
+    CubismShader_Axmol();
 
     /**
      * @brief   privateなデストラクタ
      */
-    virtual ~CubismShader_Cocos2dx();
+    virtual ~CubismShader_Axmol();
 
     /**
      * @brief   シェーダプログラムの一連のセットアップを実行する
@@ -280,7 +280,7 @@ private:
      * @param[in]   matrix4x4             ->  Model-View-Projection行列
      * @param[in]   invertedMask           ->  マスクを反転して使用するフラグ
      */
-    void SetupShaderProgram(CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* drawCommand, CubismRenderer_Cocos2dx* renderer, ax::Texture2D* texture
+    void SetupShaderProgram(CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* drawCommand, CubismRenderer_Axmol* renderer, ax::Texture2D* texture
                             , csmInt32 vertexCount, csmFloat32* vertexArray
                             , csmFloat32* uvArray, csmFloat32 opacity
                             , CubismRenderer::CubismBlendMode colorBlendMode
@@ -331,20 +331,20 @@ private:
  * @brief   Cubismモデルを描画する直前のCocos2dxのステートを保持・復帰させるクラス
  *
  */
-class CubismRendererProfile_Cocos2dx
+class CubismRendererProfile_Axmol
 {
-    friend class CubismRenderer_Cocos2dx;
+    friend class CubismRenderer_Axmol;
 
 private:
     /**
      * @biref   privateなコンストラクタ
      */
-    CubismRendererProfile_Cocos2dx() {};
+    CubismRendererProfile_Axmol() {};
 
     /**
      * @biref   privateなデストラクタ
      */
-    virtual ~CubismRendererProfile_Cocos2dx() {};
+    virtual ~CubismRendererProfile_Axmol() {};
 
     /**
      * @brief   Cocos2dxのステートを保持する
@@ -375,11 +375,11 @@ private:
  * @brief   Cocos2dx用の描画命令を実装したクラス
  *
  */
-class CubismRenderer_Cocos2dx : public CubismRenderer
+class CubismRenderer_Axmol : public CubismRenderer
 {
     friend class CubismRenderer;
-    friend class CubismClippingManager_Cocos2dx;
-    friend class CubismShader_Cocos2dx;
+    friend class CubismClippingManager_Axmol;
+    friend class CubismShader_Axmol;
 
 public:
     /**
@@ -426,22 +426,22 @@ public:
     CubismVector2 GetClippingMaskBufferSize() const;
 
 
-    static CubismCommandBuffer_Cocos2dx* GetCommandBuffer();
+    static CubismCommandBuffer_Axmol* GetCommandBuffer();
 
-    static void StartFrame(CubismCommandBuffer_Cocos2dx* commandBuffer);
+    static void StartFrame(CubismCommandBuffer_Axmol* commandBuffer);
 
-    static void EndFrame(CubismCommandBuffer_Cocos2dx* commandBuffer);
+    static void EndFrame(CubismCommandBuffer_Axmol* commandBuffer);
 
 protected:
     /**
      * @brief   コンストラクタ
      */
-    CubismRenderer_Cocos2dx();
+    CubismRenderer_Axmol();
 
     /**
      * @brief   デストラクタ
      */
-    virtual ~CubismRenderer_Cocos2dx();
+    virtual ~CubismRenderer_Axmol();
 
     /**
      * @brief   モデルを描画する実際の処理
@@ -468,11 +468,11 @@ protected:
 
     void DrawMesh(csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount, csmUint16* indexArray, csmFloat32* vertexArray, csmFloat32* uvArray, csmFloat32 opacity, CubismBlendMode colorBlendMode, csmBool invertedMask);
 
-    void DrawMeshCocos2d(CubismCommandBuffer_Cocos2dx::DrawCommandBuffer::DrawCommand* drawCommand, csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount
+    void DrawMeshCocos2d(CubismCommandBuffer_Axmol::DrawCommandBuffer::DrawCommand* drawCommand, csmInt32 textureNo, csmInt32 indexCount, csmInt32 vertexCount
                   , csmUint16* indexArray, csmFloat32* vertexArray, csmFloat32* uvArray
                   , csmFloat32 opacity, CubismBlendMode colorBlendMode, csmBool invertedMask);
 
-    CubismCommandBuffer_Cocos2dx::DrawCommandBuffer* GetDrawCommandBufferData(csmInt32 drawableIndex);
+    CubismCommandBuffer_Axmol::DrawCommandBuffer* GetDrawCommandBufferData(csmInt32 drawableIndex);
 
 #ifdef CSM_TARGET_ANDROID_ES2
 public:
@@ -492,8 +492,8 @@ public:
 
 private:
     // Prevention of copy Constructor
-    CubismRenderer_Cocos2dx(const CubismRenderer_Cocos2dx&);
-    CubismRenderer_Cocos2dx& operator=(const CubismRenderer_Cocos2dx&);
+    CubismRenderer_Axmol(const CubismRenderer_Axmol&);
+    CubismRenderer_Axmol& operator=(const CubismRenderer_Axmol&);
 
     /**
      * @brief   レンダラが保持する静的なリソースを解放する<br>
@@ -550,13 +550,13 @@ private:
 
     csmMap<csmInt32, ax::Texture2D*>            _textures;                      ///< モデルが参照するテクスチャとレンダラでバインドしているテクスチャとのマップ
     csmVector<csmInt32>                 _sortedDrawableIndexList;       ///< 描画オブジェクトのインデックスを描画順に並べたリスト
-    CubismRendererProfile_Cocos2dx     _rendererProfile;               ///< OpenGLのステートを保持するオブジェクト
-    CubismClippingManager_Cocos2dx*    _clippingManager;               ///< クリッピングマスク管理オブジェクト
+    CubismRendererProfile_Axmol     _rendererProfile;               ///< OpenGLのステートを保持するオブジェクト
+    CubismClippingManager_Axmol*    _clippingManager;               ///< クリッピングマスク管理オブジェクト
     CubismClippingContext*              _clippingContextBufferForMask;  ///< マスクテクスチャに描画するためのクリッピングコンテキスト
     CubismClippingContext*              _clippingContextBufferForDraw;  ///< 画面上描画するためのクリッピングコンテキスト
 
-    CubismOffscreenFrame_Cocos2dx      _offscreenFrameBuffer;          ///< マスク描画用のフレームバッファ
-    csmVector<CubismCommandBuffer_Cocos2dx::DrawCommandBuffer*>  _drawableDrawCommandBuffer;
+    CubismOffscreenFrame_Axmol      _offscreenFrameBuffer;          ///< マスク描画用のフレームバッファ
+    csmVector<CubismCommandBuffer_Axmol::DrawCommandBuffer*>  _drawableDrawCommandBuffer;
 };
 
 }}}}

@@ -5,7 +5,6 @@ precision mediump float;
 precision highp float;
 #endif
 
-layout(location = COLOR0) in vec4 v_color;
 layout(location = TEXCOORD0) in vec2 v_texCoord;
 layout(location = TEXCOORD1) in vec4 v_myPos;
 

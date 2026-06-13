@@ -45,7 +45,7 @@ static inline ax::Renderer* GetCocos2dRenderer()
     return ax::Director::getInstance()->getRenderer();
 }
 
-class CubismCommandBuffer_Cocos2dx
+class CubismCommandBuffer_Axmol
 {
 public:
     class DrawCommandBuffer
@@ -133,8 +133,8 @@ public:
         WindingType_CounterClockWise,
     };
 
-    CubismCommandBuffer_Cocos2dx();
-    virtual ~CubismCommandBuffer_Cocos2dx();
+    CubismCommandBuffer_Axmol();
+    virtual ~CubismCommandBuffer_Axmol();
 
     void PushCommandGroup();
     void PopCommandGroup();

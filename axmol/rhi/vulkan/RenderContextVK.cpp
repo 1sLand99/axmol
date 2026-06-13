@@ -465,7 +465,7 @@ void RenderContextImpl::recreateSwapchain()
     scInfo.imageExtent      = extent;
     scInfo.imageArrayLayers = 1;
     // VK_IMAGE_USAGE_TRANSFER_SRC_BIT: Allows use as a blit source (for readPixels)
-    scInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    scInfo.imageUsage       = SWAPCHAIN_IMAGE_USAGE_FLAGS;
     scInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     scInfo.preTransform     = preTransform;
     scInfo.compositeAlpha   = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
