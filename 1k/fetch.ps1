@@ -70,7 +70,7 @@ function fetch_repo($url, $name, $dest, $ext) {
                         }
                     }
                     catch {
-      
+
                     }
 
                     println "fetch.ps1: rename $original_lib_src to $dest failed, try after 1 seconds"
@@ -179,7 +179,7 @@ if (!(Test-Path $sentry -PathType Leaf)) {
     }
 
     fetch_repo -url $url -name $name -dest $lib_src -ext $url_pkg_ext
-    
+
     if (Test-Path $lib_src -PathType Container) {
         New-Item $sentry -ItemType File 1>$null
     }
@@ -195,10 +195,16 @@ if (!(Test-Path "$lib_src/.git" -PathType Container)) { $is_git_repo = $false }
 
 # checkout revision for git repo
 if (!$revision) {
-    $ver_pair = [array]$version.Split('-')
-    $use_hash = $ver_pair.Count -gt 1
-    $revision = $ver_pair[$use_hash].Trim()
-    $version = $ver_pair[0]
+    # regard v as tag or doesn't ends with short git hash
+    if ($version.StartsWith('v')) {
+        $revision = $version
+    }
+    else {
+        $ver_pair = [array]$version.Split('-')
+        $use_hash = $ver_pair.Count -gt 1
+        $revision = $ver_pair[$use_hash].Trim()
+        $version = $ver_pair[0]
+    }
 }
 
 $branch_name = $null
