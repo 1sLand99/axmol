@@ -1906,7 +1906,13 @@ elseif ($Global:is_wasm) {
 
 $is_host_target = $Global:is_win32 -or $Global:is_linux -or $Global:is_mac
 $is_host_cpu = $HOST_CPU -eq $TARGET_CPU
-$cmake_target = $null
+if ($cmake_target) {
+    # put cmake_target to global
+    $global:cmake_target = $cmake_target
+}
+else {
+    $cmake_target = $null
+}
 
 if (!$setupOnly) {
     $BUILD_DIR = $null
@@ -2143,21 +2149,25 @@ if (!$setupOnly) {
             $cmakeEntryFile = 'CMakeLists.txt'
             $mainDep = if (!$SOURCE_DIR) { Join-Path $workDir $cmakeEntryFile } else { $(Join-Path $SOURCE_DIR $cmakeEntryFile) }
             if ($1k.isfile($mainDep)) {
-                $mainDepChanged = $false
                 # A Windows file time is a 64-bit value that represents the number of 100-nanosecond
-                $tempFileItem = Get-Item $mainDep
-                $lastWriteTime = $tempFileItem.LastWriteTime.ToFileTimeUTC()
+                $entryFileItem = Get-Item $mainDep
+                $lastWriteTime = $entryFileItem.LastWriteTime.ToFileTimeUTC()
                 $tempFile = Join-Path $BUILD_DIR '1k_cache.txt'
-
-                $storeHash = 0
-                if ($1k.isfile($tempFile)) {
-                    $storeHash = Get-Content $tempFile -Raw
-                }
-                $hashValue = $1k.hash("$CONFIG_ALL_OPTIONS#$lastWriteTime")
-                $mainDepChanged = "$storeHash" -ne "$hashValue"
                 $cmakeCachePath = $1k.realpath("$BUILD_DIR/CMakeCache.txt")
 
-                if ($mainDepChanged -or !$1k.isfile($cmakeCachePath) -or $forceConfig) {
+                $shouldRegen = $forceConfig
+                if(!$shouldRegen) {
+                    $shouldRegen = !$1k.isfile($cmakeCachePath) -or !$1k.isfile($tempFile)
+                }
+
+                $hashValue = $1k.hash("$CONFIG_ALL_OPTIONS#$lastWriteTime")
+
+                if (!$shouldRegen) {
+                    $storeHash = Get-Content $tempFile -Raw
+                    $shouldRegen = ("$storeHash" -ne "$hashValue")
+                }
+
+                if ($shouldRegen) {
                     $config_cmd = if (!$is_wasm) { 'cmake' } else { 'emcmake' }
                     if ($is_wasm) {
                         $CONFIG_ALL_OPTIONS = @('cmake') + $CONFIG_ALL_OPTIONS
@@ -2209,7 +2219,7 @@ if (!$setupOnly) {
                         $cm_targets = @()
                     }
                     if ($cmake_target) {
-                        if ($cm_targets.Contains($cmake_target)) {
+                        if (!$cm_targets.Contains($cmake_target)) {
                             $cm_targets += $cmake_target
                         }
                     }
