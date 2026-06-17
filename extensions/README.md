@@ -40,9 +40,10 @@
 
 ## Live2D (OFF default)
 
-- Upstream: https://www.live2d.com/en/download/cubism-sdk/download-native/
-- Version: [4-r.4] - 2021-12-09
+- Upstream: https://github.com/axmolengine/live2d-axmol
+- Version: 5.5
 - License: Live2D Proprietary Software License
+- Limitation: The Live2D Core SDK does not provide prebuilt libraries for WinUWP or WebAssembly, so these platforms are not supported.
 
 ## Particle3D
 
