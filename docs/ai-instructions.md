@@ -69,6 +69,15 @@ If the Axmol CLI environment is active, use the following entry points:
 | Windows | `axmol build -p win32` |
 | Android | `axmol build -p android` |
 
+### Axmol CLI Implementation Note
+- The Axmol CLI is implemented in **PowerShell**, and all commands are executed through PowerShell scripts.
+- Do **not** attempt to invoke CLI commands directly via Python, as this will result in execution errors or environment incompatibility.
+
+### Python Dependency Status
+- Axmol is actively removing all dependencies on Python in future releases.
+- Currently, the only remaining Python dependency is the legacy Lua binding generator tool.
+- All other workflows, including CLI and build processes, are fully PowerShell-based and will remain Python‑free going forward.
+
 ### [v3] Additional Build Notes
 - The v3 branch introduces experimental **Direct3D 11**, **Direct3D 12** and **Vulkan** RHI backends. To test them, refer to the [About-RHI-in-axmol-v3](https://github.com/axmolengine/axmol/wiki/About-RHI-in-axmol-v3) wiki page.
 - arm64 builds for Linux and Windows are available starting from v3.
