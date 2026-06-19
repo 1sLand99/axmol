@@ -39,6 +39,9 @@ on:
   issue_comment:
     types: [created] # Listen for new comments on issues/PRs
 
+env:
+  LLVM_VER: '21'
+
 jobs:
   clang-format-lint:
     runs-on: ubuntu-latest
@@ -140,15 +143,18 @@ jobs:
         ref: ${{ steps.pp.outputs.head_ref }}
         token: ${{ secrets.AX_BOT_TOKEN || github.token }}
 
-    - name: Run clang-format lint
+    - name: Install llvm clang-format
       if: ${{ steps.pp.outputs.should_run == 'true' }}
-      uses: DoozyX/clang-format-lint-action@v0.20
-      with:
-        source: './axmol ./extensions ./tests ./templates'
-        exclude: './3rdparty ./extensions/ImGui/**/im* ./extensions/fairygui ./extensions/Live2D ./extensions/Effekseer ./extensions/scripting/lua-bindings/auto ./extensions/spine ./tests/cpp-tests/Source/Box2DTestBed/samples ./tests/fairygui-tests ./tests/live2d-tests ./extensions/**/*_generated.h'
-        extensions: 'h,cpp,c,mm'
-        clangFormatVersion: 20
-        inplace: True
+      shell: pwsh
+      run: |
+        # Install clang-format
+        ./1k/llvm.ps1 install $env:LLVM_VER clang-format
+
+    - name: Formating sources of Axmol
+      if: ${{ steps.pp.outputs.should_run == 'true' }}
+      shell: pwsh
+      run: |
+        ./tools/cmdline/clang-format.ps1 -ver $env:LLVM_VER
 
     # check_only mode
     - name: Check for uncommitted changes
