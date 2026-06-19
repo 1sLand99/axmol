@@ -44,6 +44,7 @@ typedef int gint;
 typedef unsigned int guint;
 typedef gint gboolean;
 typedef uintptr_t gsize;
+typedef guint GQuark;
 
 typedef unsigned long gulong;
 
@@ -74,12 +75,37 @@ typedef enum
 
 typedef enum
 {
+    GTK_RESPONSE_NONE         = -1,
+    GTK_RESPONSE_REJECT       = -2,
+    GTK_RESPONSE_ACCEPT       = -3,
+    GTK_RESPONSE_DELETE_EVENT = -4,
+    GTK_RESPONSE_OK           = -5,
+    GTK_RESPONSE_CANCEL       = -6,
+    GTK_RESPONSE_CLOSE        = -7,
+    GTK_RESPONSE_YES          = -8,
+    GTK_RESPONSE_NO           = -9,
+    GTK_RESPONSE_APPLY        = -10,
+    GTK_RESPONSE_HELP         = -11
+} GtkResponseType;
+
+typedef enum
+{
     GTK_WIN_POS_NONE,
     GTK_WIN_POS_CENTER,
     GTK_WIN_POS_MOUSE,
     GTK_WIN_POS_CENTER_ALWAYS,
     GTK_WIN_POS_CENTER_ON_PARENT
 } GtkWindowPosition;
+
+typedef enum
+{
+    G_SIGNAL_MATCH_ID        = 1 << 0,
+    G_SIGNAL_MATCH_DETAIL    = 1 << 1,
+    G_SIGNAL_MATCH_CLOSURE   = 1 << 2,
+    G_SIGNAL_MATCH_FUNC      = 1 << 3,
+    G_SIGNAL_MATCH_DATA      = 1 << 4,
+    G_SIGNAL_MATCH_UNBLOCKED = 1 << 5
+} GSignalMatchType;
 
 typedef struct _GtkAdjustment GtkAdjustment;
 typedef struct _GtkBuilder GtkBuilder;
@@ -96,6 +122,7 @@ typedef struct _GtkTooltip GtkTooltip;
 typedef struct _GtkWidget GtkWidget;
 typedef struct _GtkWidgetPath GtkWidgetPath;
 typedef struct _GtkWindow GtkWindow;
+typedef struct _GdkEventFocus GdkEventFocus;
 
 typedef struct _GtkDialog GtkDialog;
 typedef struct _GtkDialogPrivate GtkDialogPrivate;
@@ -115,6 +142,7 @@ typedef struct _GClosure GClosure;
 typedef struct _GMainContext GMainContext;
 
 typedef struct _GtkEntryBuffer GtkEntryBuffer;
+typedef struct _GtkEditable GtkEditable;
 }
 
 #    if defined(__has_attribute) && __has_attribute(__const__)
@@ -151,6 +179,13 @@ static gulong (*g_signal_connect_data)(gpointer instance,
                                        gpointer data,
                                        GClosureNotify destroy_data,
                                        GConnectFlags connect_flags);
+static guint (*g_signal_handlers_disconnect_matched)(gpointer instance,
+                                                     int mask,
+                                                     guint signal_id,
+                                                     GQuark detail,
+                                                     GClosure* closure,
+                                                     gpointer func,
+                                                     gpointer data);
 static void (*gtk_window_set_type_hint)(GtkWindow* window, GdkWindowTypeHint hint);
 static void (*gtk_window_set_position)(GtkWindow* window, GtkWindowPosition position);
 static void (*gtk_widget_show_all)(GtkWidget* widget);
@@ -159,10 +194,14 @@ static gint (*gtk_dialog_run)(GtkDialog* dialog);
 static gboolean (*g_main_context_iteration)(GMainContext* context, gboolean may_block);
 static GTypeInstance* (*g_type_check_instance_cast)(GTypeInstance* instance, GType iface_type);
 static GtkEntryBuffer* (*gtk_entry_get_buffer)(GtkEntry* entry);
+static void (*gtk_entry_set_max_length)(GtkEntry* entry, gint max_chars);
 static void (*gtk_entry_buffer_set_text)(GtkEntryBuffer* buffer, const char* text, int n_chars);
 static gsize (*gtk_entry_buffer_get_bytes)(GtkEntryBuffer* buffer);  // text size in bytes
 // static guint (*gtk_entry_buffer_get_length)(GtkEntryBuffer* buffer);  // text size in utf-8 chars
 static const gchar* (*gtk_entry_buffer_get_text)(GtkEntryBuffer* buffer);
+static GType (*gtk_widget_get_type)(void);
+static GType (*gtk_editable_get_type)(void);
+static void (*gtk_entry_set_visibility)(GtkEntry* entry, gboolean visible);
 
 /* --- implementation bits --- */
 #    if defined(G_DISABLE_CAST_CHECKS) || defined(__OPTIMIZE__)
@@ -172,6 +211,9 @@ static const gchar* (*gtk_entry_buffer_get_text)(GtkEntryBuffer* buffer);
 #        define _G_TYPE_CIC(ip, gt, ct) ((ct*)(void*)g_type_check_instance_cast((GTypeInstance*)ip, gt))
 #        define _G_TYPE_CCC(cp, gt, ct) ((ct*)(void*)g_type_check_class_cast((GTypeClass*)cp, gt))
 #    endif
+
+#    define GTK_TYPE_EDITABLE                                    (gtk_editable_get_type())
+#    define GTK_EDITABLE(obj)                                    (G_TYPE_CHECK_INSTANCE_CAST((obj), GTK_TYPE_EDITABLE, GtkEditable))
 
 #    define G_TYPE_CHECK_INSTANCE_CAST(instance, g_type, c_type) (_G_TYPE_CIC((instance), (g_type), c_type))
 #    define G_TYPE_CHECK_INSTANCE_CAST(instance, g_type, c_type) (_G_TYPE_CIC((instance), (g_type), c_type))
@@ -204,14 +246,20 @@ static const gchar* (*gtk_entry_buffer_get_text)(GtkEntryBuffer* buffer);
 #    define GTK_IS_WINDOW_CLASS(klass)                           (G_TYPE_CHECK_CLASS_TYPE((klass), GTK_TYPE_WINDOW))
 #    define GTK_WINDOW_GET_CLASS(obj)                            (G_TYPE_INSTANCE_GET_CLASS((obj), GTK_TYPE_WINDOW, GtkWindowClass))
 
+#    define GTK_TYPE_WIDGET                                      (gtk_widget_get_type())
+#    define GTK_WIDGET(widget)                                   (G_TYPE_CHECK_INSTANCE_CAST((widget), GTK_TYPE_WIDGET, GtkWidget))
 #    define g_signal_connect(instance, detailed_signal, c_handler, data) \
         g_signal_connect_data((instance), (detailed_signal), (c_handler), (data), nullptr, (GConnectFlags)0)
+#    define g_signal_handlers_disconnect_by_data(instance, data) \
+        g_signal_handlers_disconnect_matched((instance), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (data))
 
-// destroy dialog when lost focus
-static void dialogFocusOutCallback(GtkWidget* widget, gpointer user_data)
-{
-    gtk_widget_destroy(widget);
-}
+#    define GDK_DLSYM(func)                                              \
+        do                                                               \
+        {                                                                \
+            func = reinterpret_cast<decltype(func)>(dlsym(gdk3, #func)); \
+            if (!func)                                                   \
+                throw std::runtime_error(#func);                         \
+        } while (0)
 
 #    define GTK_DLSYM(func)                                              \
         do                                                               \
@@ -249,18 +297,23 @@ static bool load_gtk3()
                 // GTK_DLSYM(gtk_entry_set_text);
                 GTK_DLSYM(gtk_window_set_keep_above);
                 GTK_DLSYM(g_signal_connect_data);
+                GTK_DLSYM(g_signal_handlers_disconnect_matched);
                 GTK_DLSYM(gtk_window_set_type_hint);
                 GTK_DLSYM(gtk_window_set_position);
                 GTK_DLSYM(gtk_widget_show_all);
+                GTK_DLSYM(gtk_widget_get_type);
                 GTK_DLSYM(gtk_dialog_run);
                 // GTK_DLSYM(gtk_entry_get_text);
                 GTK_DLSYM(gtk_entry_get_buffer);
                 GTK_DLSYM(gtk_entry_buffer_set_text);
+                GTK_DLSYM(gtk_entry_set_max_length);
                 GTK_DLSYM(gtk_entry_buffer_get_bytes);
                 // GTK_DLSYM(gtk_entry_buffer_get_length);
                 GTK_DLSYM(gtk_entry_buffer_get_text);
                 GTK_DLSYM(g_main_context_iteration);
                 GTK_DLSYM(g_type_check_instance_cast);
+                GTK_DLSYM(gtk_editable_get_type);
+                GTK_DLSYM(gtk_entry_set_visibility);
             }
             catch (const std::exception& ex)
             {
@@ -274,7 +327,62 @@ static bool load_gtk3()
     return !!gtk3;
 }
 
-static void showModalInputDialog(ax::ui::EditBoxImplLinux* delegate)
+static void commitDialogInput(ax::ui::EditBoxImplLinux* context)
+{
+    GtkEntryBuffer* entryBuffer = gtk_entry_get_buffer(GTK_ENTRY(context->getNativeInputEntry()));
+    auto pszText                = gtk_entry_buffer_get_text(entryBuffer);
+    auto sizeInBytes            = static_cast<size_t>(gtk_entry_buffer_get_bytes(entryBuffer));
+    std::string_view entryLineNew{pszText, sizeInBytes};
+    context->editBoxEditingDidEnd(entryLineNew);
+}
+
+// Fixed focus-out-event signature (must return gboolean and take GdkEvent*).
+static gboolean on_dialog_lost_focus(GtkWidget* widget, GdkEventFocus* event, ax::ui::EditBoxImplLinux* context)
+{
+    commitDialogInput(context);
+    gtk_widget_destroy(widget);
+    return 0;  // Return FALSE to propagate the event further.
+}
+
+// Signal callback for button clicks (responses).
+static void on_dialog_response(GtkDialog* dialog, gint response_id, ax::ui::EditBoxImplLinux* context)
+{
+    if (context->isDialogRunning(dialog))
+    {
+        if (response_id == GTK_RESPONSE_OK)  // "OK" button was clicked.
+        {
+            commitDialogInput(context);
+        }
+        else
+        {
+            context->editBoxEditingDidEnd(context->getInputInitialValue());
+        }
+    }
+
+    // Destroy the dialog after handling the response.
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+// Signal callback for dialog destruction (for memory cleanup and unexpected closures).
+static void on_dialog_destroy(GtkWidget* widget, ax::ui::EditBoxImplLinux* context)
+{
+    // If the window was destroyed directly (e.g., focus lost)
+    if (context->isDialogRunning(GTK_DIALOG(widget)))
+    {
+        context->nativeDialogEnd();
+    }
+}
+
+static void on_entry_text_changed(GtkWidget* editable, ax::ui::EditBoxImplLinux* context)
+{
+    GtkEntryBuffer* entryBuffer = gtk_entry_get_buffer(GTK_ENTRY(context->getNativeInputEntry()));
+    auto pszText                = gtk_entry_buffer_get_text(entryBuffer);
+    auto sizeInBytes            = static_cast<size_t>(gtk_entry_buffer_get_bytes(entryBuffer));
+    std::string_view entryLineNew{pszText, sizeInBytes};
+    context->editBoxEditingChanged(entryLineNew);
+}
+
+static void showInputDialog(ax::ui::EditBoxImplLinux* context)
 {
     if (!load_gtk3())
     {
@@ -291,37 +399,33 @@ static void showModalInputDialog(ax::ui::EditBoxImplLinux* delegate)
     contentArea = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     gtk_container_add(GTK_CONTAINER(contentArea), entry);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", 0);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), "OK", GTK_RESPONSE_OK);
+    if (context->getInputFlag() == ax::ui::EditBox::InputFlag::PASSWORD)
+        gtk_entry_set_visibility(GTK_ENTRY(entry), 0);
 
     GtkEntryBuffer* entryBuffer = gtk_entry_get_buffer(GTK_ENTRY(entry));
 
-    auto entryLine = delegate->getText();
+    auto entryLine = context->getInputInitialValue();
     if (!entryLine.empty())
         gtk_entry_buffer_set_text(entryBuffer, entryLine.data(), ax::text_utils::countUTF8Chars(entryLine));
 
-    g_signal_connect(dialog, "focus-out-event", G_CALLBACK(dialogFocusOutCallback), nullptr);
+    gtk_entry_set_max_length(GTK_ENTRY(entry), context->getMaxLength());
+
+    // Bind signals.
+    g_signal_connect(dialog, "response", G_CALLBACK(on_dialog_response), context);
+    g_signal_connect(dialog, "destroy", G_CALLBACK(on_dialog_destroy), context);
+    g_signal_connect(dialog, "focus-out-event", G_CALLBACK(on_dialog_lost_focus), context);
+
+    g_signal_connect(GTK_EDITABLE(entry), "changed", G_CALLBACK(on_entry_text_changed), context);
+
     gtk_window_set_keep_above(GTK_WINDOW(dialog), true);
-    gtk_window_set_type_hint(GTK_WINDOW(dialog), GDK_WINDOW_TYPE_HINT_MENU);
+    gtk_window_set_type_hint(GTK_WINDOW(dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+
+    // Show the dialog.
     gtk_widget_show_all(dialog);
 
-    std::string_view entryLineNew;
-    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
-    if (result == 0)
-    {
-        auto pszText     = gtk_entry_buffer_get_text(entryBuffer);
-        auto sizeInBytes = static_cast<size_t>(gtk_entry_buffer_get_bytes(entryBuffer));
-        std::string_view entryLineNew{pszText, sizeInBytes};
-        delegate->editBoxEditingDidEnd(entryLineNew);
-    }
-    else
-    {
-        delegate->editBoxEditingDidEnd(entryLine);
-    }
-
-    gtk_widget_destroy(dialog);
-    while (g_main_context_iteration(nullptr, false))
-        ;
+    context->nativeDalogShow(dialog, entry);
 }
 
 namespace ax
@@ -337,7 +441,18 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 
 EditBoxImplLinux::EditBoxImplLinux(EditBox* pEditText) : EditBoxImplCommon(pEditText) {}
 
-EditBoxImplLinux::~EditBoxImplLinux() {}
+EditBoxImplLinux::~EditBoxImplLinux()
+{
+    if (_inputDialog)
+    {
+        g_signal_handlers_disconnect_by_data(GTK_DIALOG(_inputDialog), this);
+        g_signal_handlers_disconnect_by_data(GTK_WIDGET(_inputEntry), this);
+
+        gtk_widget_destroy(GTK_WIDGET(_inputDialog));
+        _inputDialog = nullptr;
+        _inputEntry  = nullptr;
+    }
+}
 
 bool EditBoxImplLinux::isEditing()
 {
@@ -346,7 +461,39 @@ bool EditBoxImplLinux::isEditing()
 
 void EditBoxImplLinux::nativeOpenKeyboard()
 {
-    showModalInputDialog(this);
+    if (!_inputDialog)
+    {
+        _inputInitialValue = getText();
+        showInputDialog(this);
+    }
+}
+
+void EditBoxImplLinux::updateNativeFrame(const Rect& /*rect*/) {}
+
+void EditBoxImplLinux::pollEvents()
+{
+    if (_inputDialog)
+        g_main_context_iteration(nullptr, false);
+}
+
+void EditBoxImplLinux::nativeDalogShow(void* dlg, void* entry)
+{
+    _inputDialog = dlg;
+    _inputEntry  = entry;
+}
+
+void EditBoxImplLinux::nativeDialogEnd()
+{
+    if (_inputDialog)
+    {
+        while (g_main_context_iteration(nullptr, false))
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+
+        _inputDialog = nullptr;
+        _inputEntry  = nullptr;
+    }
 }
 
 }  // namespace ui
