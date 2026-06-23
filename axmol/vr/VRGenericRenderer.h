@@ -182,8 +182,6 @@ protected:
     void renderSceneToEye(Renderer* renderer, Scene* scene, EyeIndex eyeIndex, const Mat4& eyeTransform);
     void renderDistortionPass(Renderer* renderer);
 
-    Director* _director{nullptr};
-
     ScissorRect _sourceScissorRect;
 
     VRGenericHeadTracker* _headTracker{nullptr};

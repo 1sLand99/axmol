@@ -61,7 +61,6 @@ static ScissorTransform makeEyeScissorTransform(const Viewport& eyeViewport, con
 VRGenericRenderer::VRGenericRenderer()
 {
     _headTracker = new VRGenericHeadTracker();
-    _director    = Director::getInstance();
     setupDistortionProgram();
 }
 
@@ -220,27 +219,6 @@ void VRGenericRenderer::renderScene(Renderer* renderer, Scene* scene)
     Camera::setVisitingCamera(nullptr);
 }
 
-void VRGenericRenderer::renderDistortionPass(Renderer* renderer)
-{
-    AXASSERT(renderer, "Invalid Renderer");
-
-    // Restore the screen viewport before drawing the distortion meshes.
-    // The eye rendering path flushes per camera and leaves the renderer state
-    // restored to the default render target, but the viewport should still be
-    // explicitly reset for the final screen-space distortion pass.
-    auto defaultVP = Camera::getDefaultViewport();
-    renderer->addCallbackCommand(
-        [=]() { renderer->setViewport(defaultVP.x, defaultVP.y, defaultVP.width, defaultVP.height); });
-
-    // Submit distortion draw commands for both eyes. The scene has already been
-    // rendered into the VR render texture; these meshes sample that texture and
-    // present the final distorted image to the screen.
-    renderer->addCommand(&_leftEyeCmd);
-    renderer->addCommand(&_rightEyeCmd);
-
-    renderer->render();
-}
-
 void VRGenericRenderer::renderSceneToEye(Renderer* renderer, Scene* scene, EyeIndex eyeIndex, const Mat4& eyeTransform)
 {
     AXASSERT(renderer, "Invalid Renderer");
@@ -287,6 +265,27 @@ void VRGenericRenderer::renderSceneToEye(Renderer* renderer, Scene* scene, EyeIn
         // while keeping each flush fully bracketed by RenderTexturePass begin/end.
         renderer->render();
     }
+}
+
+void VRGenericRenderer::renderDistortionPass(Renderer* renderer)
+{
+    AXASSERT(renderer, "Invalid Renderer");
+
+    // Restore the screen viewport before drawing the distortion meshes.
+    // The eye rendering path flushes per camera and leaves the renderer state
+    // restored to the default render target, but the viewport should still be
+    // explicitly reset for the final screen-space distortion pass.
+    auto defaultVP = Camera::getDefaultViewport();
+    renderer->addCallbackCommand(
+        [=]() { renderer->setViewport(defaultVP.x, defaultVP.y, defaultVP.width, defaultVP.height); });
+
+    // Submit distortion draw commands for both eyes. The scene has already been
+    // rendered into the VR render texture; these meshes sample that texture and
+    // present the final distorted image to the screen.
+    renderer->addCommand(&_leftEyeCmd);
+    renderer->addCommand(&_rightEyeCmd);
+
+    renderer->render();
 }
 
 void VRGenericRenderer::clearEyeRenderTexture(Renderer* renderer, const Color& clearColor)
