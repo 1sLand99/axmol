@@ -51,7 +51,7 @@
 
 ## fast_float
 - [![Upstream](https://img.shields.io/github/v/release/fastfloat/fast_float?label=Upstream)](https://github.com/fastfloat/fast_float)
-- Version: 8.2.9
+- Version: 8.2.10
 - License: MIT
 
 ## flatbuffers
@@ -106,12 +106,12 @@
 
 ## kcp
 - [![Upstream](https://img.shields.io/github/v/release/skywind3000/kcp?label=Upstream)](https://github.com/skywind3000/kcp)
-- Version: 1.7-f2aa30e
+- Version: 2.1.1
 - License: MIT
 
 ## llhttp
 - [![Upstream](https://img.shields.io/github/v/release/nodejs/llhttp?label=Upstream)](https://github.com/nodejs/llhttp)
-- Version: 9.4.1
+- Version: 9.4.2
 - License: MIT
 
 ## lua
