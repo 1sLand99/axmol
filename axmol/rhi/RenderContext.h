@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "axmol/base/Object.h"
 #include "axmol/base/Data.h"
@@ -172,12 +172,9 @@ public:
      * @param count For each instance, the number of indexes to draw
      * @see `drawElements(PrimitiveType primitiveType, IndexFormat indexType, unsigned int count, unsigned int offset)`
      */
-    virtual void drawArrays(std::size_t start, std::size_t count, bool wireframe = false) = 0;
+    virtual void drawArrays(size_t start, size_t count, bool wireframe = false) = 0;
 
-    virtual void drawArraysInstanced(std::size_t start,
-                                     std::size_t count,
-                                     int instanceCount,
-                                     bool wireframe = false) = 0;
+    virtual void drawArraysInstanced(size_t start, size_t count, int instanceCount, bool wireframe = false) = 0;
 
     /**
      * Draw primitives with an index list.
@@ -187,7 +184,7 @@ public:
      * @see `setIndexBuffer(Buffer* buffer)`
      * @see `drawArrays(PrimitiveType primitiveType, unsigned int start,  unsigned int count)`
      */
-    virtual void drawElements(IndexFormat indexType, std::size_t count, std::size_t offset, bool wireframe = false) = 0;
+    virtual void drawElements(IndexFormat indexType, size_t count, size_t offset, bool wireframe = false) = 0;
 
     /**
      * Draw primitives with an index list instanced.
@@ -199,8 +196,8 @@ public:
      * @see `drawArrays(PrimitiveType primitiveType, unsigned int start,  unsigned int count)`
      */
     virtual void drawElementsInstanced(IndexFormat indexType,
-                                       std::size_t count,
-                                       std::size_t offset,
+                                       size_t count,
+                                       size_t offset,
                                        int instanceCount,
                                        bool wireframe = false) = 0;
 

@@ -240,7 +240,7 @@ void ProgramState::setCallbackUniform(const rhi::UniformLocation& uniformLocatio
     _callbackUniforms[uniformLocation] = callback;
 }
 
-void ProgramState::setUniform(const rhi::UniformLocation& uniformLocation, const void* data, std::size_t size)
+void ProgramState::setUniform(const rhi::UniformLocation& uniformLocation, const void* data, size_t size)
 {
     if (uniformLocation)
     {

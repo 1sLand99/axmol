@@ -30,7 +30,7 @@
 #include <thread>
 #include <algorithm>
 #include <functional>
-#include <cctype>
+#include <ctype.h>
 #include <locale>
 #include <sstream>
 #include <optional>
@@ -1138,7 +1138,7 @@ void Console::commandTouchSubCommandTap(socket_native_type fd, std::string_view 
 
     if (argi == 3)
     {
-        std::srand((unsigned)time(nullptr));
+        srand((unsigned)time(nullptr));
         _touchId = rand();
         Director::getInstance()->postTask([this, x, y]() {
             PointerInputState pointerDownData{.id = _touchId};
@@ -1176,7 +1176,7 @@ void Console::commandTouchSubCommandSwipe(socket_native_type fd, std::string_vie
             //     return;
             // }
             char* endptr = nullptr;
-            points[i]    = std::strtod(val.data(), &endptr);
+            points[i]    = strtod(val.data(), &endptr);
         }
 
         float& x1 = points[0];
@@ -1184,7 +1184,7 @@ void Console::commandTouchSubCommandSwipe(socket_native_type fd, std::string_vie
         float& x2 = points[2];
         float& y2 = points[3];
 
-        std::srand((unsigned)time(nullptr));
+        srand((unsigned)time(nullptr));
         _touchId = rand();
 
         Director::getInstance()->postTask([x1, y1, this]() {

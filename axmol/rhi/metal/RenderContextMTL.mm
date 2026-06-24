@@ -333,22 +333,19 @@ void RenderContextImpl::setIndexBuffer(Buffer* buffer)
     [_mtlIndexBuffer retain];
 }
 
-void RenderContextImpl::drawArrays(std::size_t start, std::size_t count, bool wireframe /* unused */)
+void RenderContextImpl::drawArrays(size_t start, size_t count, bool wireframe /* unused */)
 {
     prepareDrawing();
     [_mtlRenderEncoder drawPrimitives:_primitiveType vertexStart:start vertexCount:count];
 }
 
-void RenderContextImpl::drawArraysInstanced(std::size_t start,
-                                            std::size_t count,
-                                            int instanceCount,
-                                            bool wireframe /* unused */)
+void RenderContextImpl::drawArraysInstanced(size_t start, size_t count, int instanceCount, bool wireframe /* unused */)
 {
     prepareDrawing();
     [_mtlRenderEncoder drawPrimitives:_primitiveType vertexStart:start vertexCount:count instanceCount:instanceCount];
 }
 
-void RenderContextImpl::drawElements(IndexFormat indexType, std::size_t count, std::size_t offset, bool /* wireframe */)
+void RenderContextImpl::drawElements(IndexFormat indexType, size_t count, size_t offset, bool /* wireframe */)
 {
     prepareDrawing();
     [_mtlRenderEncoder drawIndexedPrimitives:_primitiveType
@@ -359,8 +356,8 @@ void RenderContextImpl::drawElements(IndexFormat indexType, std::size_t count, s
 }
 
 void RenderContextImpl::drawElementsInstanced(IndexFormat indexType,
-                                              std::size_t count,
-                                              std::size_t offset,
+                                              size_t count,
+                                              size_t offset,
                                               int instanceCount,
                                               bool /* wireframe */)
 {
@@ -579,10 +576,10 @@ void RenderContextImpl::setScissorRect(bool enabled, float x, float y, float wid
 }
 
 void RenderContextImpl::readPixels(id<MTLTexture> texture,
-                                   std::size_t origX,
-                                   std::size_t origY,
-                                   std::size_t rectWidth,
-                                   std::size_t rectHeight,
+                                   size_t origX,
+                                   size_t origY,
+                                   size_t rectWidth,
+                                   size_t rectHeight,
                                    PixelBufferDesc& pbd)
 {
     NSUInteger texWidth   = texture.width;
