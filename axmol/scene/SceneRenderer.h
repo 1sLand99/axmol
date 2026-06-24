@@ -36,6 +36,7 @@ namespace ax
 class Renderer;
 class Scene;
 class RenderViewCore;
+class Director;
 
 /**
  * @brief Renders a scene graph into a render target or the screen.

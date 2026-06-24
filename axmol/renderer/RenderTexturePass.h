@@ -40,6 +40,11 @@ class Renderer;
 class Camera;
 class RenderTexture;
 
+namespace rhi
+{
+class RenderTarget;
+}
+
 /**
  * @brief Manages an offscreen render pass into a RenderTexture.
  *
