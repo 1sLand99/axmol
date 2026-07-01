@@ -230,7 +230,7 @@ private:
     Renderer* _renderer{nullptr};
     RenderTexture* _renderTexture{nullptr};  // weak ref
     bool _active{false};
-    bool _autoFlipY{false};
+    bool _autoFlipY{true};
 
     // When enabled, begin() temporarily overrides the visiting camera and applies
     // backend-specific projection adjustments when needed. end() restores the

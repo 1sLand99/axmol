@@ -37,6 +37,7 @@
 #    include "axmol/platform/FileUtils.h"
 #    include "axmol/ui/UIHelper.h"
 #    include "axmol/media/MediaEngine.h"
+#    include "axmol/scene/Camera.h"
 #    include "axmol/ui/Button.h"
 #    include "axmol/ui/LayoutGroup.h"
 #    include "axmol/tlx/byte_buffer.hpp"
@@ -499,35 +500,37 @@ static void createVideoControlTexture()
     auto totalWidth  = utils::nextPOT(numItems * panelW + (numItems - 1) * gap + (border * 2));
     auto totalHeight = utils::nextPOT(border * 2 + panelH);
     auto imageSize   = Size(static_cast<float>(totalWidth), static_cast<float>(totalHeight));
-    auto* node       = Node::create();
+    auto node        = Node::create();
     node->setContentSize(imageSize);
     node->setIgnoreAnchorPointForPosition(false);
     node->setAnchorPoint(Anchors::bottomLeft);
     node->setPosition(0, 0);
     node->addChild(drawNode);
 
-    auto* rt = RenderTexture::createForCanvas(Vec2(totalWidth, totalHeight), PixelFormat::RGBA8, PixelFormat::D24S8);
+    auto rt     = RenderTexture::createForCanvas(Vec2(totalWidth, totalHeight), PixelFormat::RGBA8, PixelFormat::D24S8);
+    auto camera = Camera::createOrthographic(imageSize.width, imageSize.height, -1024.0f, 1024.0f);
+    camera->setPosition3D(Vec3(imageSize.width * 0.5f, imageSize.height * 0.5f, 0.0f));
 
+    RefPtr<RenderTexturePass> pass(RenderTexturePass::obtain(rt), tlx::adopt_object);
+    pass->begin(camera);
+    pass->clear(ClearFlag::COLOR, {.color = Color(0, 0, 0, 0)});
+
+    g_mediaControlTextureRegions.clear();
+
+    int i = 0;
+    for (auto&& item : items)
     {
-        auto scope = RefPtr<RenderTexturePass>(RenderTexturePass::obtain(rt), tlx::adopt_object);
-        scope->begin();
-        scope->clear(ClearFlag::COLOR, {.color = Color(0, 0, 0, 0)});
+        auto midPoint =
+            Vec2(border + (i * panelW) + (i * gap) + (panelW / 2.f), imageSize.height - border - (panelH / 2.f));
+        item.second(midPoint);
 
-        g_mediaControlTextureRegions.clear();
-
-        int i = 0;
-        for (auto&& item : items)
-        {
-            auto midPoint =
-                Vec2(border + (i * panelW) + (i * gap) + (panelW / 2.f), imageSize.height - border - (panelH / 2.f));
-            item.second(midPoint);
-            g_mediaControlTextureRegions[item.first] = Rect(border + (panelW * i) + (gap * i), border, panelW, panelH);
-            ++i;
-        }
-
-        node->visit();
-        scope->end();
+        g_mediaControlTextureRegions[item.first] = Rect(border + (panelW * i) + (gap * i), border, panelW, panelH);
+        ++i;
     }
+
+    node->visit();
+    pass->end();
+
     Director::getInstance()->getRenderer()->render();
 
     g_mediaControlsTexture = rt;
